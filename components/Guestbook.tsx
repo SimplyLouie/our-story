@@ -126,8 +126,35 @@ const Guestbook: React.FC<GuestbookProps> = ({ isDarkMode }) => {
                                         {new Date(entry.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                                     </span>
                                 </div>
-                                <i className="fa-solid fa-quote-right text-gold/20 text-2xl"></i>
+                                {entry.reaction === 'heart' ? (
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        className="flex flex-col items-center gap-1"
+                                    >
+                                        <i className="fa-solid fa-heart text-red-500 text-xl drop-shadow-[0_0_8px_rgba(239,68,68,0.4)] animate-pulse"></i>
+                                        <span className="text-[8px] font-black uppercase tracking-tighter text-red-500/80">Loved</span>
+                                    </motion.div>
+                                ) : (
+                                    <i className="fa-solid fa-quote-right text-gold/20 text-2xl"></i>
+                                )}
                             </div>
+
+                            {entry.reply && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className={`mt-6 p-4 rounded-sm border-l-2 border-gold/40 relative group ${isDarkMode ? 'bg-black/20' : 'bg-white'}`}
+                                >
+                                    <div className="absolute -top-2 -left-2 w-6 h-6 bg-gold rounded-full flex items-center justify-center shadow-sm">
+                                        <i className="fa-solid fa-crown text-[10px] text-white"></i>
+                                    </div>
+                                    <div className="text-gold text-[8px] font-black uppercase tracking-widest mb-1 pl-2">The Couple's Reply</div>
+                                    <p className={`text-xs italic font-body ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                        "{entry.reply}"
+                                    </p>
+                                </motion.div>
+                            )}
                         </motion.div>
                     ))}
                 </AnimatePresence>

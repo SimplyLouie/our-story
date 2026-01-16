@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SiteContent, RSVP, RSVPStatus, MeetingNote, ChecklistItem } from '../types';
+import { SiteContent, RSVP, RSVPStatus, MeetingNote, ChecklistItem, GuestbookEntry } from '../types';
 import { storageService } from '../firebase-storage';
 
 interface AdminPanelProps {
@@ -14,8 +14,9 @@ interface AdminPanelProps {
   onSendReminder: (rsvpId: string) => void;
   onBatchReminders: (ids: string[]) => void;
   onDeleteRSVP: (id: string) => void;
-  guestbookEntries: any[];
+  guestbookEntries: GuestbookEntry[];
   onDeleteGuestbookEntry: (id: string) => void;
+  onUpdateGuestbookEntry: (entry: GuestbookEntry) => void;
   onClose: () => void;
   isDarkMode: boolean;
 }
@@ -50,7 +51,7 @@ const InputField = ({ label, value, onChange, placeholder, isDarkMode }: any) =>
 );
 
 const AdminPanel: React.FC<AdminPanelProps> = ({
-  content, onUpdateContent, rsvps, notes, onAddNote, onDeleteNote, onSendReminder, onBatchReminders, onDeleteRSVP, guestbookEntries, onDeleteGuestbookEntry, onClose, isDarkMode
+  content, onUpdateContent, rsvps, notes, onAddNote, onDeleteNote, onSendReminder, onBatchReminders, onDeleteRSVP, guestbookEntries, onDeleteGuestbookEntry, onUpdateGuestbookEntry, onClose, isDarkMode
 }) => {
   const [activeTab, setActiveTab] = useState<'content' | 'guests' | 'lists' | 'notes' | 'guestbook'>('content');
   const [newNote, setNewNote] = useState('');
@@ -67,6 +68,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [selectedGuests, setSelectedGuests] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [guestDeleteConfirmation, setGuestDeleteConfirmation] = useState<{ show: boolean; guestId: string; guestName: string } | null>(null);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [activeReply, setActiveReply] = useState('');
 
   // Image upload states
   const [isUploading, setIsUploading] = useState(false);
@@ -1343,7 +1346,110 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                               <h4 className="font-serif text-gold text-lg">{entry.name}</h4>
                               <span className={`text-[9px] uppercase tracking-widest font-bold ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(entry.date).toLocaleDateString()}</span>
                             </div>
-                            <p className={`text-sm italic font-body ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>"{entry.message}"</p>
+                            <p className={`text-sm italic font-body mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>"{entry.message}"</p>
+
+                            <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-white/5">
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => {
+                                    const updatedEntry = { ...entry, reaction: entry.reaction === 'heart' ? null : 'heart' };
+                                    onUpdateGuestbookEntry(updatedEntry);
+                                  }}
+                                  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all group ${entry.reaction === 'heart'
+                                    ? 'bg-red-50 text-red-500 border border-red-100 dark:bg-red-500/10 dark:border-red-500/20'
+                                    : isDarkMode ? 'bg-white/5 text-gray-400 hover:text-red-400' : 'bg-gray-100 text-gray-500 hover:text-red-500'
+                                    }`}
+                                >
+                                  <motion.div
+                                    animate={entry.reaction === 'heart' ? { scale: [1, 1.4, 1] } : {}}
+                                    transition={{ duration: 0.4 }}
+                                  >
+                                    <i className={`fa-solid fa-heart ${entry.reaction === 'heart' ? 'text-red-500' : 'opacity-30 group-hover:opacity-100 transition-opacity'}`}></i>
+                                  </motion.div>
+                                  <span className="text-[10px] font-black uppercase tracking-widest">
+                                    {entry.reaction === 'heart' ? 'Loved' : 'Love'}
+                                  </span>
+                                </button>
+
+                                <button
+                                  onClick={() => {
+                                    setReplyingTo(entry.id);
+                                    setActiveReply(entry.reply || '');
+                                  }}
+                                  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all hover:bg-gold/10 hover:text-gold ${entry.reply ? 'bg-gold/5 text-gold' : isDarkMode ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-500'}`}
+                                >
+                                  <i className="fa-solid fa-reply text-xs"></i>
+                                  <span className="text-[10px] font-black uppercase tracking-widest">{entry.reply ? 'Edit Reply' : 'Reply'}</span>
+                                </button>
+                              </div>
+
+                              {entry.reaction === 'heart' && (
+                                <motion.span
+                                  initial={{ opacity: 0, scale: 0.5 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  className="text-[9px] text-red-500 font-bold uppercase tracking-widest italic flex items-center gap-2"
+                                >
+                                  <span className="w-1 h-1 bg-red-500 rounded-full animate-pulse"></span>
+                                  Acknowledged
+                                </motion.span>
+                              )}
+                            </div>
+
+                            <AnimatePresence>
+                              {replyingTo === entry.id && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  className="mt-6 pt-6 border-t border-dashed border-gray-100 dark:border-white/5"
+                                >
+                                  <textarea
+                                    value={activeReply}
+                                    onChange={(e) => setActiveReply(e.target.value)}
+                                    placeholder="Write your reply..."
+                                    className={`w-full p-4 rounded-xl text-sm font-body transition-all outline-none border ${isDarkMode ? 'bg-black/20 border-white/5 text-white' : 'bg-white border-gray-100 text-gray-700'} focus:border-gold`}
+                                    rows={3}
+                                  />
+                                  <div className="flex gap-2 mt-3">
+                                    <button
+                                      onClick={() => {
+                                        const updatedEntry = {
+                                          ...entry,
+                                          reply: activeReply.trim() || null,
+                                          replyDate: activeReply.trim() ? new Date().toISOString() : null
+                                        };
+                                        onUpdateGuestbookEntry(updatedEntry);
+                                        setReplyingTo(null);
+                                        setActiveReply('');
+                                        showToast('Reply updated', 'success');
+                                      }}
+                                      className="bg-gold text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-gold/90"
+                                    >
+                                      Post Reply
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setReplyingTo(null);
+                                        setActiveReply('');
+                                      }}
+                                      className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border ${isDarkMode ? 'border-white/10 text-gray-400' : 'border-gray-100 text-gray-500'}`}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+
+                            {entry.reply && replyingTo !== entry.id && (
+                              <div className={`mt-6 p-4 rounded-xl relative ${isDarkMode ? 'bg-gold/5 border border-gold/10' : 'bg-gold/5 border border-gold/10'}`}>
+                                <div className="text-gold text-[8px] font-black uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                                  <i className="fa-solid fa-crown text-[10px]"></i>
+                                  Your Reply
+                                </div>
+                                <p className={`text-xs italic font-body ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>"{entry.reply}"</p>
+                              </div>
+                            )}
                           </div>
                         ))}
                         {guestbookEntries.length === 0 && (
