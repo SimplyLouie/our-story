@@ -276,7 +276,12 @@ const App: React.FC = () => {
           onToggleMusic={toggleMusic}
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
-          hidden={isAdmin || showGuestDashboard || showAdminLogin}
+          onBack={(isAdmin || showGuestDashboard || showAdminLogin) ? () => {
+            setIsAdmin(false);
+            setShowGuestDashboard(false);
+            setShowAdminLogin(false);
+          } : undefined}
+          hidden={showAdminLogin && !isAdmin} // Hide only during initial login transition if not yet admin
         />
         <Hero content={content} />
 
