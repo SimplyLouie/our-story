@@ -97,14 +97,19 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
   const venues = content.venues || [];
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [isEditingAttendance, setIsEditingAttendance] = useState(false);
+  const [tempPlusOne, setTempPlusOne] = useState(false);
+  const [tempPlusOneName, setTempPlusOneName] = useState('');
 
-  const handleStatusUpdate = async (newStatus: RSVPStatus) => {
+  const handleStatusUpdate = async (newStatus: RSVPStatus, plusOneData?: { plusOne: boolean, plusOneName: string }) => {
     if (!foundRSVP) return;
     setIsUpdating(true);
 
     const updatedRSVP = {
       ...foundRSVP,
       status: newStatus,
+      plusOne: plusOneData ? plusOneData.plusOne : foundRSVP.plusOne,
+      plusOneName: plusOneData ? plusOneData.plusOneName : foundRSVP.plusOneName,
       timestamp: new Date().toISOString()
     };
 
@@ -112,6 +117,7 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
       await onUpdateRSVP(updatedRSVP);
       setFoundRSVP(updatedRSVP);
       setUpdateSuccess(true);
+      setIsEditingAttendance(false);
       setTimeout(() => setUpdateSuccess(false), 3000);
     } catch (error) {
       console.error("Failed to update RSVP:", error);
@@ -220,7 +226,15 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
               <div className="flex flex-col md:flex-row justify-between items-center md:items-start text-center md:text-left gap-6 border-b pb-10 border-gray-100 dark:border-white/5">
                 <div>
                   <div className="text-gold font-cursive text-3xl mb-1">Welcome</div>
-                  <h3 className={`text-4xl font-serif ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{foundRSVP.name}</h3>
+                  <h3 className={`text-3xl md:text-4xl font-serif leading-tight ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                    {foundRSVP.name}
+                    {foundRSVP.plusOne && foundRSVP.plusOneName && (
+                      <span className="block md:inline">
+                        <span className="mx-2 text-gold/30 font-cursive text-2xl md:text-3xl">&</span>
+                        {foundRSVP.plusOneName}
+                      </span>
+                    )}
+                  </h3>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-4">
                     <span className={`text-[10px] uppercase font-black px-5 py-2 rounded-full tracking-widest shadow-sm ${foundRSVP.status === RSVPStatus.ATTENDING ? 'bg-green-600 text-white' :
                       foundRSVP.status === RSVPStatus.NOT_ATTENDING ? 'bg-red-600 text-white' :
@@ -230,7 +244,7 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
                     </span>
                     {foundRSVP.plusOne && (
                       <span className="text-[10px] text-gold font-black uppercase tracking-[0.2em] bg-gold/5 px-5 py-2 rounded-full border border-gold/10">
-                        Guest Included
+                        Guest Included{foundRSVP.plusOneName ? `: ${foundRSVP.plusOneName}` : ''}
                       </span>
                     )}
                   </div>
@@ -317,34 +331,90 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
                   {foundRSVP.status === RSVPStatus.UNDECIDED && (
                     <div className="space-y-4">
                       <p className={`text-[10px] uppercase font-black text-center tracking-[0.2em] mb-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Ready to decide?</p>
-                      <div className="grid grid-cols-2 gap-4">
-                        <button
-                          disabled={isUpdating}
-                          onClick={() => handleStatusUpdate(RSVPStatus.ATTENDING)}
-                          className={`py-4 px-2 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 ${isDarkMode
-                            ? 'bg-green-600/20 text-green-400 border border-green-500/20 hover:bg-green-600/30'
-                            : 'bg-green-50 text-green-700 border border-green-100 hover:bg-green-100'
-                            }`}
+
+                      {!isEditingAttendance ? (
+                        <div className="grid grid-cols-2 gap-4">
+                          <button
+                            disabled={isUpdating}
+                            onClick={() => {
+                              setTempPlusOne(foundRSVP.plusOne);
+                              setTempPlusOneName(foundRSVP.plusOneName || '');
+                              setIsEditingAttendance(true);
+                            }}
+                            className={`py-4 px-2 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 ${isDarkMode
+                              ? 'bg-green-600/20 text-green-400 border border-green-500/20 hover:bg-green-600/30'
+                              : 'bg-green-50 text-green-700 border border-green-100 hover:bg-green-100'
+                              }`}
+                          >
+                            <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shrink-0 ${isDarkMode ? 'bg-green-400/20' : 'bg-green-600/10'}`}>
+                              <i className="fa-solid fa-check text-[10px]"></i>
+                            </div>
+                            <span>I'll Be There</span>
+                          </button>
+                          <button
+                            disabled={isUpdating}
+                            onClick={() => handleStatusUpdate(RSVPStatus.NOT_ATTENDING)}
+                            className={`py-4 px-2 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 ${isDarkMode
+                              ? 'bg-red-600/20 text-red-400 border border-red-500/20 hover:bg-red-600/30'
+                              : 'bg-red-50 text-red-700 border border-red-100 hover:bg-red-100'
+                              }`}
+                          >
+                            <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shrink-0 ${isDarkMode ? 'bg-red-400/20' : 'bg-red-600/10'}`}>
+                              {isUpdating ? <i className="fa-solid fa-spinner fa-spin text-[10px]"></i> : <i className="fa-solid fa-xmark text-[10px]"></i>}
+                            </div>
+                            <span>Declined</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'} space-y-6`}
                         >
-                          <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shrink-0 ${isDarkMode ? 'bg-green-400/20' : 'bg-green-600/10'}`}>
-                            {isUpdating ? <i className="fa-solid fa-spinner fa-spin text-[10px]"></i> : <i className="fa-solid fa-check text-[10px]"></i>}
+                          <div className="flex items-center gap-3 p-3 rounded-xl bg-gold/5 border border-gold/10">
+                            <input
+                              type="checkbox"
+                              id="dashboardPlusOne"
+                              checked={tempPlusOne}
+                              onChange={e => setTempPlusOne(e.target.checked)}
+                              className="accent-gold h-4 w-4 cursor-pointer"
+                            />
+                            <label htmlFor="dashboardPlusOne" className="text-[10px] uppercase tracking-widest font-black text-gray-500 cursor-pointer">
+                              I will bring a guest (+1)
+                            </label>
                           </div>
-                          <span>I'll Be There</span>
-                        </button>
-                        <button
-                          disabled={isUpdating}
-                          onClick={() => handleStatusUpdate(RSVPStatus.NOT_ATTENDING)}
-                          className={`py-4 px-2 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 ${isDarkMode
-                            ? 'bg-red-600/20 text-red-400 border border-red-500/20 hover:bg-red-600/30'
-                            : 'bg-red-50 text-red-700 border border-red-100 hover:bg-red-100'
-                            }`}
-                        >
-                          <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shrink-0 ${isDarkMode ? 'bg-red-400/20' : 'bg-red-600/10'}`}>
-                            {isUpdating ? <i className="fa-solid fa-spinner fa-spin text-[10px]"></i> : <i className="fa-solid fa-xmark text-[10px]"></i>}
+
+                          {tempPlusOne && (
+                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+                              <label className="block text-[9px] uppercase tracking-widest font-black text-gray-400 ml-1">Guest Name</label>
+                              <input
+                                type="text"
+                                value={tempPlusOneName}
+                                onChange={e => setTempPlusOneName(e.target.value)}
+                                placeholder="Companion's full name"
+                                className={`w-full bg-transparent border-b-2 py-2 px-1 outline-none transition-all font-serif text-lg ${isDarkMode ? 'border-white/10 text-white focus:border-gold' : 'border-gray-200 text-gray-800 focus:border-gold'}`}
+                              />
+                            </motion.div>
+                          )}
+
+                          <div className="flex gap-3 pt-2">
+                            <button
+                              onClick={() => setIsEditingAttendance(false)}
+                              className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'bg-white/5 text-gray-400 hover:bg-white/10' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              disabled={isUpdating || (tempPlusOne && !tempPlusOneName.trim())}
+                              onClick={() => handleStatusUpdate(RSVPStatus.ATTENDING, { plusOne: tempPlusOne, plusOneName: tempPlusOneName })}
+                              className="flex-1 py-3 bg-gold text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#b8962d] shadow-lg shadow-gold/20 disabled:opacity-50"
+                            >
+                              {isUpdating ? <i className="fa-solid fa-spinner fa-spin mr-2"></i> : <i className="fa-solid fa-check mr-2"></i>}
+                              Confirm
+                            </button>
                           </div>
-                          <span>Declined</span>
-                        </button>
-                      </div>
+                        </motion.div>
+                      )}
                     </div>
                   )}
 
@@ -360,15 +430,81 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
                   )}
 
                   {foundRSVP.status === RSVPStatus.ATTENDING && (
-                    <a
-                      href={getCalendarLink()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`w-full py-5 rounded-2xl uppercase tracking-[0.4em] text-[11px] font-black transition-all text-center flex items-center justify-center gap-4 shadow-xl active:scale-95 group bg-gold text-white hover:bg-[#b8962d]`}
-                    >
-                      <i className="fa-solid fa-calendar-circle-plus text-lg group-hover:scale-125 transition-transform"></i>
-                      Add to Calendar
-                    </a>
+                    <div className="space-y-4">
+                      {!isEditingAttendance ? (
+                        <div className="flex flex-col gap-4">
+                          <a
+                            href={getCalendarLink()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`w-full py-5 rounded-2xl uppercase tracking-[0.4em] text-[11px] font-black transition-all text-center flex items-center justify-center gap-4 shadow-xl active:scale-95 group bg-gold text-white hover:bg-[#b8962d]`}
+                          >
+                            <i className="fa-solid fa-calendar-circle-plus text-lg group-hover:scale-125 transition-transform"></i>
+                            Add to Calendar
+                          </a>
+                          <button
+                            onClick={() => {
+                              setTempPlusOne(foundRSVP.plusOne);
+                              setTempPlusOneName(foundRSVP.plusOneName || '');
+                              setIsEditingAttendance(true);
+                            }}
+                            className={`w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${isDarkMode ? 'border-white/10 text-gray-400 hover:bg-white/5' : 'border-gold/20 text-gold hover:bg-gold/5'}`}
+                          >
+                            <i className="fa-solid fa-pen-to-square mr-2"></i>
+                            Edit Selection
+                          </button>
+                        </div>
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'} space-y-6`}
+                        >
+                          <div className="flex items-center gap-3 p-3 rounded-xl bg-gold/5 border border-gold/10">
+                            <input
+                              type="checkbox"
+                              id="editAttendingPlusOne"
+                              checked={tempPlusOne}
+                              onChange={e => setTempPlusOne(e.target.checked)}
+                              className="accent-gold h-4 w-4 cursor-pointer"
+                            />
+                            <label htmlFor="editAttendingPlusOne" className="text-[10px] uppercase tracking-widest font-black text-gray-500 cursor-pointer">
+                              I will bring a guest (+1)
+                            </label>
+                          </div>
+
+                          {tempPlusOne && (
+                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+                              <label className="block text-[9px] uppercase tracking-widest font-black text-gray-400 ml-1">Guest Name</label>
+                              <input
+                                type="text"
+                                value={tempPlusOneName}
+                                onChange={e => setTempPlusOneName(e.target.value)}
+                                placeholder="Companion's full name"
+                                className={`w-full bg-transparent border-b-2 py-2 px-1 outline-none transition-all font-serif text-lg ${isDarkMode ? 'border-white/10 text-white focus:border-gold' : 'border-gray-200 text-gray-800 focus:border-gold'}`}
+                              />
+                            </motion.div>
+                          )}
+
+                          <div className="flex gap-3 pt-2">
+                            <button
+                              onClick={() => setIsEditingAttendance(false)}
+                              className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'bg-white/5 text-gray-400 hover:bg-white/10' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              disabled={isUpdating || (tempPlusOne && !tempPlusOneName.trim())}
+                              onClick={() => handleStatusUpdate(RSVPStatus.ATTENDING, { plusOne: tempPlusOne, plusOneName: tempPlusOneName })}
+                              className="flex-1 py-3 bg-gold text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#b8962d] shadow-lg shadow-gold/20 disabled:opacity-50"
+                            >
+                              {isUpdating ? <i className="fa-solid fa-spinner fa-spin mr-2"></i> : <i className="fa-solid fa-check mr-2"></i>}
+                              Update Information
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

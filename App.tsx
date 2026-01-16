@@ -268,21 +268,17 @@ const App: React.FC = () => {
         style={{ scaleX }}
       />
 
+      <Navbar
+        onAdminClick={handleAdminAuth}
+        onGuestDashboardClick={() => { setInitialGuestName(''); setShowGuestDashboard(true); }}
+        isMuted={isMuted}
+        onToggleMusic={toggleMusic}
+        isDarkMode={isDarkMode}
+        onToggleTheme={toggleTheme}
+        hidden={isAdmin || showGuestDashboard || showAdminLogin}
+      />
+
       <div className="flex flex-col">
-        <Navbar
-          onAdminClick={handleAdminAuth}
-          onGuestDashboardClick={() => { setInitialGuestName(''); setShowGuestDashboard(true); }}
-          isMuted={isMuted}
-          onToggleMusic={toggleMusic}
-          isDarkMode={isDarkMode}
-          onToggleTheme={toggleTheme}
-          onBack={(isAdmin || showGuestDashboard || showAdminLogin) ? () => {
-            setIsAdmin(false);
-            setShowGuestDashboard(false);
-            setShowAdminLogin(false);
-          } : undefined}
-          hidden={showAdminLogin && !isAdmin} // Hide only during initial login transition if not yet admin
-        />
         <Hero content={content} />
 
 

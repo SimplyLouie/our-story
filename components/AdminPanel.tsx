@@ -121,12 +121,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   // Export to CSV
   const exportToCSV = useCallback(() => {
-    const headers = ['Name', 'Email', 'Status', 'Plus One', 'Notes', 'Date'];
+    const headers = ['Name', 'Email', 'Status', 'Plus One', 'Companion Name', 'Notes', 'Date'];
     const rows = filteredGuests.map(r => [
       r.name,
       r.email,
       r.status,
       r.plusOne ? 'Yes' : 'No',
+      r.plusOneName || '',
       r.notes || '',
       r.timestamp || ''
     ]);
@@ -1155,7 +1156,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                 </td>
                                 <td className="py-5 pl-4">
                                   <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{rsvp.name}</div>
-                                  {rsvp.plusOne && <div className="text-xs text-gray-400 mt-1 flex items-center gap-1"><i className="fa-solid fa-user-plus text-[10px]"></i> +1 Guest</div>}
+                                  {rsvp.plusOne && (
+                                    <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                                      <i className="fa-solid fa-user-plus text-[10px]"></i>
+                                      +1 Guest{rsvp.plusOneName ? `: ${rsvp.plusOneName}` : ''}
+                                    </div>
+                                  )}
                                 </td>
                                 <td className="py-5">
                                   <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${rsvp.status === RSVPStatus.ATTENDING ? 'bg-green-100 text-green-600' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
@@ -1206,7 +1212,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                   />
                                   <div>
                                     <div className={`font-bold transition-colors ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{rsvp.name}</div>
-                                    <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${rsvp.status === RSVPStatus.ATTENDING ? 'bg-green-100 text-green-600' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
+                                    {rsvp.plusOne && (
+                                      <div className="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+                                        <i className="fa-solid fa-user-plus text-[8px]"></i>
+                                        +1 Guest{rsvp.plusOneName ? `: ${rsvp.plusOneName}` : ''}
+                                      </div>
+                                    )}
+                                    <span className={`inline-block px-3 py-1 mt-2 rounded-full text-[9px] font-black uppercase tracking-wider ${rsvp.status === RSVPStatus.ATTENDING ? 'bg-green-100 text-green-600' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
                                       {rsvp.status === RSVPStatus.ATTENDING ? 'Accepted' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'Declined' : 'Pending'}
                                     </span>
                                   </div>
