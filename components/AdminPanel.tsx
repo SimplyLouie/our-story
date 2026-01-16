@@ -66,6 +66,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [sortBy, setSortBy] = useState<SortOption>('name-asc');
   const [selectedGuests, setSelectedGuests] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [guestDeleteConfirmation, setGuestDeleteConfirmation] = useState<{ show: boolean; guestId: string; guestName: string } | null>(null);
 
   // Image upload states
   const [isUploading, setIsUploading] = useState(false);
@@ -209,6 +210,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handleRemoveItem = (field: keyof SiteContent, index: number, itemName: string) => {
     requestDeleteConfirmation(field, index, itemName);
+  };
+
+  const confirmGuestDelete = () => {
+    if (!guestDeleteConfirmation) return;
+    onDeleteRSVP(guestDeleteConfirmation.guestId);
+    showToast(`${guestDeleteConfirmation.guestName} deleted from list`, 'success');
+    setGuestDeleteConfirmation(null);
   };
 
   const addChecklistItem = () => {
@@ -376,6 +384,51 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                     className="flex-1 bg-red-500 text-white px-4 md:px-6 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/30"
                   >
                     Delete
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Guest Delete Confirmation Modal */}
+      <AnimatePresence>
+        {guestDeleteConfirmation?.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setGuestDeleteConfirmation(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className={`${isDarkMode ? 'bg-[#262626] border-white/10' : 'bg-white border-gold/20'} rounded-3xl p-6 md:p-10 max-w-md w-full shadow-2xl border`}
+            >
+              <div className="text-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 transition-colors">
+                  <i className="fa-solid fa-user-minus text-red-500 text-xl md:text-2xl"></i>
+                </div>
+                <h3 className={`text-xl md:text-2xl font-serif mb-3 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Remove Guest</h3>
+                <p className={`text-sm md:text-base mb-2 font-body transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Are you sure you want to remove:</p>
+                <p className="text-gold font-bold text-base md:text-lg mb-6 font-body">"{guestDeleteConfirmation.guestName}"</p>
+                <p className={`text-[10px] md:text-sm mb-8 transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>This action will delete their RSVP and cannot be reversed.</p>
+                <div className="flex gap-3 md:gap-4">
+                  <button
+                    onClick={() => setGuestDeleteConfirmation(null)}
+                    className={`flex-1 px-4 md:px-6 py-3 rounded-xl font-bold uppercase text-xs tracking-widest transition-all ${isDarkMode ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    Keep Guest
+                  </button>
+                  <button
+                    onClick={confirmGuestDelete}
+                    className="flex-1 bg-red-500 text-white px-4 md:px-6 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/30"
+                  >
+                    Delete Now
                   </button>
                 </div>
               </div>
@@ -1117,7 +1170,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                     <button onClick={() => onSendReminder(rsvp.id)} className={`transition-colors p-2 ${isDarkMode ? 'text-gray-600 hover:text-gold' : 'text-gray-300 hover:text-gold'}`} title="Send Reminder">
                                       <i className="fa-solid fa-bell"></i>
                                     </button>
-                                    <button onClick={() => onDeleteRSVP(rsvp.id)} className={`transition-colors p-2 ${isDarkMode ? 'text-gray-600 hover:text-red-500' : 'text-gray-300 hover:text-red-500'}`} title="Delete Guest">
+                                    <button onClick={() => setGuestDeleteConfirmation({ show: true, guestId: rsvp.id, guestName: rsvp.name })} className={`transition-colors p-2 ${isDarkMode ? 'text-gray-600 hover:text-red-500' : 'text-gray-300 hover:text-red-500'}`} title="Delete Guest">
                                       <i className="fa-solid fa-trash-can"></i>
                                     </button>
                                   </div>
@@ -1172,7 +1225,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                   <i className="fa-solid fa-bell"></i> Remind
                                 </button>
                                 <button
-                                  onClick={() => onDeleteRSVP(rsvp.id)}
+                                  onClick={() => setGuestDeleteConfirmation({ show: true, guestId: rsvp.id, guestName: rsvp.name })}
                                   className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-all flex items-center justify-center gap-2 text-xs font-bold"
                                 >
                                   <i className="fa-solid fa-trash-can"></i> Delete
