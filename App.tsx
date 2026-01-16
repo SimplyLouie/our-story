@@ -23,8 +23,13 @@ const App: React.FC = () => {
   const [loginError, setLoginError] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Admin email - change this to match your Firebase user
-  const ADMIN_EMAIL = 'admin@simplylouie.com';
+  // Admin email allowlist for restricted access
+  const ADMIN_ALLOWLIST = [
+    'admin@simplylouie.com',
+    'mendezlouie892@gmail.com',
+    'louie.mendez@guesty.com',
+    'faciolflorie.mae03@gmail.com'
+  ];
 
   const [initialGuestName, setInitialGuestName] = useState<string>('');
   const [isMuted, setIsMuted] = useState(true);
@@ -202,11 +207,16 @@ const App: React.FC = () => {
   // Firebase Auth State Observer
   useEffect(() => {
     const unsubscribe = authService.onAuthStateChange((user) => {
-      if (user) {
+      if (user && ADMIN_ALLOWLIST.includes(user.email || '')) {
         setIsAdmin(true);
         setShowAdminLogin(false);
       } else {
         setIsAdmin(false);
+        // If someone logs in with a non-whitelisted email, sign them out
+        if (user) {
+          authService.logout();
+          setLoginError('Access denied: Email not authorized');
+        }
       }
     });
     return () => unsubscribe();
@@ -223,11 +233,11 @@ const App: React.FC = () => {
     setLoginError('');
 
     try {
-      // Use hardcoded admin email with user-entered password
-      await authService.login(ADMIN_EMAIL, passwordInput);
-      setIsAdmin(true);
-      setShowAdminLogin(false);
-      window.scrollTo(0, 0);
+      // Use the email they entered (likely admin@simplylouie.com for password login)
+      // or we can just try logging in with whatever they typed if we add an email field.
+      // For now, keeping it simple: it tries to login as the main admin account.
+      await authService.login('admin@simplylouie.com', passwordInput);
+      // The auth state observer will handle setIsAdmin(true)
     } catch (error: any) {
       console.error('Login error:', error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
@@ -238,6 +248,19 @@ const App: React.FC = () => {
         setLoginError('Too many failed attempts. Try again later.');
       } else {
         setLoginError('Authentication failed. Please try again.');
+      }
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoginError('');
+    try {
+      await authService.loginWithGoogle();
+      // The auth state observer will handle setIsAdmin(true) and whitelisting
+    } catch (error: any) {
+      console.error('Google login error:', error);
+      if (error.code !== 'auth/popup-closed-by-user') {
+        setLoginError('Google login failed. Please try again.');
       }
     }
   };
@@ -375,7 +398,29 @@ const App: React.FC = () => {
                     <i className="fa-solid fa-unlock"></i>
                     Unlock Admin Panel
                   </button>
-                  <div className="text-center pt-2">
+
+                  <div className="relative my-8">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className={`w-full border-t ${isDarkMode ? 'border-white/10' : 'border-gray-100'}`}></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase tracking-widest">
+                      <span className={`px-4 ${isDarkMode ? 'bg-[#262626] text-gray-500' : 'bg-white text-gray-400'}`}>Or</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    className={`w-full py-4 rounded-xl text-[10px] uppercase font-bold tracking-[0.2em] transition-all flex items-center justify-center gap-3 border-2 ${isDarkMode
+                      ? 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                      : 'bg-gray-50 border-gray-100 text-gray-800 hover:bg-gray-100'
+                      }`}
+                  >
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
+                    Sign in with Google
+                  </button>
+
+                  <div className="text-center pt-6">
                     <p className="text-xs text-gray-400">
                       <i className="fa-solid fa-shield-halved mr-1"></i>
                       Secured with Firebase Authentication

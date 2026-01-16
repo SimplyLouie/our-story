@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue, off, DataSnapshot, remove } from 'firebase/database';
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, User, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, User, setPersistence, browserLocalPersistence, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { firebaseConfig } from './firebase-config';
 import { RSVP, SiteContent, MeetingNote, GuestbookEntry } from './types';
 
@@ -22,6 +22,13 @@ export const authService = {
     // Logout
     logout: async (): Promise<void> => {
         await signOut(auth);
+    },
+
+    // Login with Google
+    loginWithGoogle: async (): Promise<User> => {
+        const provider = new GoogleAuthProvider();
+        const userCredential = await signInWithPopup(auth, provider);
+        return userCredential.user;
     },
 
     // Get current user

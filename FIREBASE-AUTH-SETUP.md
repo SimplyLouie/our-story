@@ -6,9 +6,11 @@ Your wedding website now has **Firebase Authentication** integrated! Here's what
 
 ### 🔐 **1. Firebase Authentication**
 - **Email/Password Login**: Secure admin access using Firebase Auth
+- **Google Sign-In**: Easy one-click access for authorized Gmail accounts
+- **Admin Allowlist**: Restrict access to specific email addresses only
 - **Session Persistence**: Auto-login on page refresh
 - **Logout Functionality**: Proper sign-out when closing admin panel
-- **Error Handling**: Specific error messages for different auth failures
+- **Error Handling**: Specific error messages for unauthorized access or auth failures
 
 ### 🎵 **2. Enhanced Music Selector**
 - **Curated Tracks**: 4 predefined wedding music options with icons
@@ -27,10 +29,17 @@ Your wedding website now has **Firebase Authentication** integrated! Here's what
 2. Select your project: **simply-louie**
 3. Navigate to **Authentication** → **Sign-in method**
 4. Click on **Email/Password**
-5. **Enable** both:
-   - ✅ Email/Password
-   - ❌ Email link (passwordless sign-in) - Leave disabled
+5. **Enable** Email/Password (Leave Email link disabled)
 6. Click **Save**
+
+### **Step 1.5: Enable Google Sign-In**
+
+1. In **Authentication** → **Sign-in method**, click **Add new provider**
+2. Select **Google**
+3. Click **Enable**
+4. Set the **Project support email** (use your primary email)
+5. Click **Save**
+6. *Note: You don't need to configure anything else for the free tier.*
 
 ### **Step 2: Create Admin User**
 
@@ -72,21 +81,15 @@ Your wedding website now has **Firebase Authentication** integrated! Here's what
 
 ---
 
-## 📝 Important Notes
+### **Admin Access: The Allowlist**
+Your website now uses an **Allowlist** for security. Only the following emails can access the Admin Panel:
 
-### **Security**
-- Never share your Firebase admin credentials
-- Use a strong password (combination of letters, numbers, symbols)
-- Consider enabling **Multi-factor Authentication** in Firebase later
+1. `admin@simplylouie.com` (Requires Password)
+2. `mendezlouie892@gmail.com` (Google Login)
+3. `louie.mendez@guesty.com` (Google Login)
+4. `faciolflorie.mae03@gmail.com` (Google Login)
 
-### **Music URLs**
-- Must be direct links to audio files (.mp3, .ogg, .wav)
-- Use services like Google Drive, Dropbox (with direct links), or audio hosting
-- Test the URL in preview before saving
-
-### **Backup Admin Access**
-- If you forget your password, use **Firebase Console** → **Authentication** → **Users** → Reset password
-- Or create a new admin user from Firebase Console
+If anyone else logs in with a Google account, they will be automatically denied access and signed out.
 
 ---
 
