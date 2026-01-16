@@ -17,36 +17,40 @@ interface AdminPanelProps {
   guestbookEntries: any[];
   onDeleteGuestbookEntry: (id: string) => void;
   onClose: () => void;
+  isDarkMode: boolean;
 }
 
 type SortOption = 'name-asc' | 'name-desc' | 'recent' | 'status';
 type StatusFilter = 'all' | RSVPStatus;
 
-const SectionHeader = ({ icon, title, description }: { icon: string, title: string, description: string }) => (
-  <div className="mb-6 flex items-start gap-4 p-5 bg-gray-50 rounded-2xl border-l-4 border-gold shadow-sm">
+const SectionHeader = ({ icon, title, description, isDarkMode }: { icon: string, title: string, description: string, isDarkMode?: boolean }) => (
+  <div className={`mb-6 flex items-start gap-4 p-5 rounded-2xl border-l-4 border-gold shadow-sm transition-colors ${isDarkMode ? 'bg-black/40 border-gold/50' : 'bg-gray-50 border-gold'}`}>
     <div className="text-gold text-2xl mt-1"><i className={`fa-solid ${icon}`}></i></div>
     <div>
-      <h3 className="text-sm font-bold uppercase tracking-widest text-gray-800 font-body">{title}</h3>
-      <p className="text-xs text-gray-500 mt-1 leading-relaxed">{description}</p>
+      <h3 className={`text-sm font-bold uppercase tracking-widest font-body ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{title}</h3>
+      <p className={`text-xs mt-1 leading-relaxed ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{description}</p>
     </div>
   </div>
 );
 
-const InputField = ({ label, value, onChange, placeholder }: any) => (
+const InputField = ({ label, value, onChange, placeholder, isDarkMode }: any) => (
   <div className="space-y-2">
-    <label className="text-[10px] uppercase font-bold text-gray-500 font-body">{label}</label>
+    <label className={`text-[10px] uppercase font-bold font-body ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{label}</label>
     <input
       type="text"
       value={value}
       onChange={onChange}
-      className="w-full border border-gray-200 p-4 rounded-xl bg-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-all text-gray-900 shadow-sm"
+      className={`w-full border p-4 rounded-xl outline-none transition-all text-sm shadow-sm ${isDarkMode
+        ? 'bg-black/20 border-white/10 text-white focus:border-gold focus:ring-1 focus:ring-gold'
+        : 'bg-white border-gray-200 text-gray-900 focus:border-gold focus:ring-1 focus:ring-gold'
+        }`}
       placeholder={placeholder}
     />
   </div>
 );
 
 const AdminPanel: React.FC<AdminPanelProps> = ({
-  content, onUpdateContent, rsvps, notes, onAddNote, onDeleteNote, onSendReminder, onBatchReminders, onDeleteRSVP, guestbookEntries, onDeleteGuestbookEntry, onClose
+  content, onUpdateContent, rsvps, notes, onAddNote, onDeleteNote, onSendReminder, onBatchReminders, onDeleteRSVP, guestbookEntries, onDeleteGuestbookEntry, onClose, isDarkMode
 }) => {
   const [activeTab, setActiveTab] = useState<'content' | 'guests' | 'lists' | 'notes' | 'guestbook'>('content');
   const [newNote, setNewNote] = useState('');
@@ -350,7 +354,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-3xl p-6 md:p-10 max-w-md w-full shadow-2xl border border-gold/20"
+              className={`${isDarkMode ? 'bg-[#262626] border-white/10' : 'bg-white border-gold/20'} rounded-3xl p-6 md:p-10 max-w-md w-full shadow-2xl border`}
             >
               <div className="text-center">
                 <div className="w-12 h-12 md:w-16 md:h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -395,7 +399,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-3xl p-6 md:p-10 max-w-2xl w-full shadow-2xl border border-gold/20"
+              className={`${isDarkMode ? 'bg-[#262626] border-white/10' : 'bg-white border-gold/20'} rounded-3xl p-6 md:p-10 max-w-2xl w-full shadow-2xl border`}
             >
               <div>
                 <div className="flex items-center gap-3 mb-6">
@@ -464,11 +468,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             onClick={() => setEmailModal(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-3xl p-6 md:p-10 max-w-2xl w-full shadow-2xl border border-gold/20 flex flex-col max-h-[90vh]"
+              className={`${isDarkMode ? 'bg-[#262626] border-white/10' : 'bg-white border-gold/20'} rounded-3xl p-6 md:p-10 max-w-2xl w-full shadow-2xl border flex flex-col max-h-[90vh]`}
             >
               <div className="flex items-center gap-3 mb-6 shrink-0">
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-gold/10 rounded-full flex items-center justify-center">
@@ -491,7 +495,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   </div>
                   <div id="recipient-list" className="hidden flex flex-wrap gap-2 transition-all">
                     {emailModal.recipients.map(r => (
-                      <span key={r.id} className="text-[10px] bg-white border border-gray-200 px-2 py-1 rounded text-gray-600">
+                      <span key={r.id} className={`text-[10px] px-2 py-1 rounded border ${isDarkMode ? 'bg-white/10 border-white/10 text-gray-300' : 'bg-white border-gray-200 text-gray-600'}`}>
                         {r.name}
                       </span>
                     ))}
@@ -505,7 +509,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                     type="text"
                     value={emailModal.subject}
                     onChange={(e) => setEmailModal({ ...emailModal, subject: e.target.value })}
-                    className="w-full border border-gray-200 p-3 md:p-4 rounded-xl bg-white focus:border-gold outline-none transition-all text-sm mb-2"
+                    className={`w-full border p-3 md:p-4 rounded-xl outline-none transition-all text-sm mb-2 ${isDarkMode ? 'bg-black/20 border-white/10 text-white focus:border-gold' : 'bg-white border-gray-200 text-gray-900 focus:border-gold'}`}
                   />
                 </div>
 
@@ -515,7 +519,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                     rows={6}
                     value={emailModal.message}
                     onChange={(e) => setEmailModal({ ...emailModal, message: e.target.value })}
-                    className="w-full border border-gray-200 p-3 md:p-4 rounded-xl bg-white focus:border-gold outline-none transition-all text-sm resize-none font-body leading-relaxed"
+                    className={`w-full border p-3 md:p-4 rounded-xl outline-none transition-all text-sm resize-none font-body leading-relaxed ${isDarkMode ? 'bg-black/20 border-white/10 text-white focus:border-gold' : 'bg-white border-gray-200 text-gray-900 focus:border-gold'}`}
                   />
                 </div>
               </div>
@@ -543,11 +547,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col h-full">
+      <div className={`flex flex-col h-full ${isDarkMode ? 'bg-[#1a1a1a]' : 'bg-[#fcfaf7]'}`}>
         {/* Header */}
-        <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 p-4 md:p-8 flex justify-between items-center shrink-0">
+        <div className={`backdrop-blur-md border-b p-4 md:p-8 flex justify-between items-center shrink-0 transition-colors ${isDarkMode ? 'bg-[#1a1a1a]/80 border-white/5' : 'bg-white/80 border-gray-100'}`}>
           <div>
-            <h2 className="text-xl md:text-3xl font-serif text-gray-900 leading-tight">{content.adminPanelTitle || 'Wedding CMS'}</h2>
+            <h2 className={`text-xl md:text-3xl font-serif leading-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{content.adminPanelTitle || 'Wedding CMS'}</h2>
             <p className="text-[10px] uppercase tracking-[0.2em] text-gold font-bold mt-1">{content.adminPanelSubtitle || 'Digital Experience Architect'}</p>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
@@ -555,685 +559,793 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               <i className="fa-solid fa-cloud-arrow-up"></i>
               <span className="hidden sm:inline">Publish</span>
             </button>
-            <button onClick={onClose} className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-all group">
-              <i className="fa-solid fa-xmark text-gray-400 group-hover:text-gray-900 transition-colors"></i>
+            <button onClick={onClose} className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all group ${isDarkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-gray-100 hover:bg-gray-200'}`}>
+              <i className={`fa-solid fa-xmark group-hover:text-red-500 transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}></i>
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
+        <div className={`w-full max-w-[95vw] h-full ${isDarkMode ? 'bg-[#1a1a1a]' : 'bg-[#fcfaf7]'} overflow-hidden flex flex-col md:flex-row transition-colors duration-300`}>
+          {/* Sidebar Navigation - Hidden on Mobile */}
+          <div className={`hidden md:flex md:w-80 ${isDarkMode ? 'bg-[#262626] border-white/5' : 'bg-white border-gray-100'} border-r p-10 flex-col transition-colors duration-300 shadow-xl z-10`}>
+            <div className="mb-10">
+              <h2 className={`text-2xl font-serif mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Admin Panel</h2>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span className={`text-[10px] uppercase tracking-widest font-bold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>System Online</span>
+              </div>
+            </div>
+
+            <nav className="flex-1 space-y-2">
+              {[
+                { id: 'content', label: 'Wedding Details', icon: 'fa-gem' },
+                { id: 'guests', label: 'Guest List', icon: 'fa-users' },
+                { id: 'lists', label: 'Venue & Events', icon: 'fa-location-dot' },
+                { id: 'notes', label: 'Checklist & Notes', icon: 'fa-clipboard-list' },
+                { id: 'guestbook', label: 'Guestbook', icon: 'fa-book-open' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold text-xs uppercase tracking-widest ${activeTab === tab.id
+                    ? 'bg-gold text-white shadow-lg shadow-gold/20 translate-x-1'
+                    : isDarkMode
+                      ? 'text-gray-400 hover:bg-white/5 hover:text-gold'
+                      : 'text-gray-500 hover:bg-gray-50 hover:text-gold'
+                    }`}
+                >
+                  <i className={`fa-solid ${tab.icon} w-5`}></i>
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+
+            <button
+              onClick={onClose}
+              className={`mt-10 flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold text-xs uppercase tracking-widest ${isDarkMode ? 'text-gray-500 hover:bg-red-500/10 hover:text-red-400' : 'text-gray-400 hover:bg-red-50 hover:text-red-600'}`}
+            >
+              <i className="fa-solid fa-right-from-bracket w-5"></i>
+              Logout
+            </button>
+          </div>
 
           {/* Main Content Area */}
-          <div className="flex-grow overflow-y-auto p-4 sm:p-8 lg:p-12 bg-gray-50/50">
-            <div className="max-w-7xl mx-auto">
-              {/* Tabs */}
-              <div className="flex flex-wrap gap-2 md:gap-4 mb-6 md:mb-10 border-b border-gray-100 pb-2">
-                {[
-                  { id: 'content', label: 'Art & Identity', icon: 'fa-palette' },
-                  { id: 'guests', label: 'Guest Orchestrator', icon: 'fa-users-gear' },
-                  { id: 'lists', label: 'Planning Assets', icon: 'fa-list-ul' },
-                  { id: 'notes', label: 'Strategic Intel', icon: 'fa-brain' },
-                  { id: 'guestbook', label: 'Legacy Wall', icon: 'fa-pen-nib' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`px-3 md:px-6 py-2 md:py-3 rounded-t-xl text-[10px] uppercase font-black tracking-widest transition-all relative ${activeTab === tab.id ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}
+          <div className="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar">
+            <div className="max-w-6xl mx-auto pb-20">
+              <AnimatePresence mode="wait">
+                {activeTab === 'content' && (
+                  <motion.div
+                    key="content-tab"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-10"
                   >
-                    <i className={`fa-solid ${tab.icon} mr-2`}></i>
-                    <span className="hidden sm:inline">{tab.label}</span>
-                    <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
-                    {activeTab === tab.id && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-gold rounded-full" />}
-                  </button>
-                ))}
-              </div>
+                    <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} rounded-3xl p-6 md:p-10 shadow-sm border transition-colors duration-300`}>
+                      <SectionHeader icon="fa-camera-retro" title="Ceremony Media" description="Manage your wedding's primary visual and audio assets." isDarkMode={isDarkMode} />
 
-              {activeTab === 'content' && (
-                <div className="space-y-6 md:space-y-10 animate-fadeIn">
-                  <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100">
-                    <SectionHeader icon="fa-display" title="Main Branding & Hero" description="Configure the primary titles and visual backdrop for your wedding site." />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                      <InputField label="Hero Section Title" value={content.heroTitle} onChange={(e: any) => handleContentChange('heroTitle', e.target.value)} />
-                      <InputField label="Hero Background Image URL" value={content.heroImageUrl} onChange={(e: any) => handleContentChange('heroImageUrl', e.target.value)} placeholder="https://unsplash.com/..." />
-                      <InputField label="Seal Initials (SL/FL)" value={content.openingScreen?.sealInitials} onChange={(e: any) => handleContentChange('openingScreen', { ...content.openingScreen, sealInitials: e.target.value })} />
-                      <InputField label="Admin Panel Header Title" value={content.adminPanelTitle} onChange={(e: any) => handleContentChange('adminPanelTitle', e.target.value)} />
-                      <InputField label="Admin Panel Header Subtitle" value={content.adminPanelSubtitle} onChange={(e: any) => handleContentChange('adminPanelSubtitle', e.target.value)} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <InputField label="Music URL (MP3)" value={content.musicUrl} onChange={(e: any) => handleContentChange('musicUrl', e.target.value)} placeholder="Direct link to mp3" isDarkMode={isDarkMode} />
+                        <InputField label="Hero Background Image URL" value={content.heroImageUrl} onChange={(e: any) => handleContentChange('heroImageUrl', e.target.value)} placeholder="https://unsplash.com/..." isDarkMode={isDarkMode} />
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Music Selector Section */}
-                  <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100">
-                    <SectionHeader icon="fa-music" title="Background Music" description="Choose from curated romantic tracks or add your own custom music URL." />
+                    <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} rounded-3xl p-6 md:p-10 shadow-sm border transition-colors duration-300`}>
+                      <SectionHeader icon="fa-gem" title="Wedding Foundation" description="Update the key details that anchor your entire website." isDarkMode={isDarkMode} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                        <InputField label="Hero Section Title" value={content.heroTitle} onChange={(e: any) => handleContentChange('heroTitle', e.target.value)} isDarkMode={isDarkMode} />
+                        <InputField label="Seal Initials (SL/FL)" value={content.openingScreen?.sealInitials} onChange={(e: any) => handleContentChange('openingScreen', { ...content.openingScreen, sealInitials: e.target.value })} isDarkMode={isDarkMode} />
+                        <InputField label="Admin Panel Header Title" value={content.adminPanelTitle} onChange={(e: any) => handleContentChange('adminPanelTitle', e.target.value)} isDarkMode={isDarkMode} />
+                        <InputField label="Admin Panel Header Subtitle" value={content.adminPanelSubtitle} onChange={(e: any) => handleContentChange('adminPanelSubtitle', e.target.value)} isDarkMode={isDarkMode} />
+                      </div>
+                    </div>
 
-                    <div className="space-y-6">
-                      {/* Predefined Music Options */}
-                      <div>
-                        <label className="text-[10px] uppercase font-bold text-gray-500 font-body mb-4 block">Curated Wedding Tracks</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {[
-                            { name: 'Romantic Piano', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', icon: 'fa-piano' },
-                            { name: 'Classical Romance', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', icon: 'fa-violin' },
-                            { name: 'Acoustic Love', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', icon: 'fa-guitar' },
-                            { name: 'Elegant Strings', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', icon: 'fa-music' },
-                          ].map((track) => (
-                            <button
-                              key={track.url}
-                              onClick={() => handleContentChange('musicUrl', track.url)}
-                              className={`p-4 rounded-xl border-2 transition-all text-left group hover:border-gold hover:bg-gold/5 ${content.musicUrl === track.url
-                                ? 'border-gold bg-gold/10'
-                                : 'border-gray-200 bg-gray-50'
+                    {/* Music Selector Section */}
+                    <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} rounded-3xl p-6 md:p-10 shadow-sm border transition-colors duration-300`}>
+                      <SectionHeader icon="fa-music" title="Background Music" description="Choose from curated romantic tracks or add your own custom music URL." isDarkMode={isDarkMode} />
+
+                      <div className="space-y-6">
+                        {/* Predefined Music Options */}
+                        <div>
+                          <label className={`text-[10px] uppercase font-bold font-body mb-4 block ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Curated Wedding Tracks</label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                              { name: 'Romantic Piano', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', icon: 'fa-piano' },
+                              { name: 'Classical Romance', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', icon: 'fa-violin' },
+                              { name: 'Acoustic Love', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', icon: 'fa-guitar' },
+                              { name: 'Elegant Strings', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', icon: 'fa-music' },
+                            ].map((track) => (
+                              <button
+                                key={track.url}
+                                onClick={() => handleContentChange('musicUrl', track.url)}
+                                className={`p-4 rounded-xl border-2 transition-all text-left group hover:border-gold hover:bg-gold/5 ${content.musicUrl === track.url
+                                  ? 'border-gold bg-gold/10'
+                                  : isDarkMode ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-gray-50'
+                                  }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all ${content.musicUrl === track.url
+                                    ? 'bg-gold text-white'
+                                    : isDarkMode ? 'bg-white/10 text-gray-400 group-hover:bg-gold/20 group-hover:text-gold' : 'bg-white text-gray-400 group-hover:bg-gold/20 group-hover:text-gold'
+                                    }`}>
+                                    <i className={`fa-solid ${track.icon}`}></i>
+                                  </div>
+                                  <div>
+                                    <div className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{track.name}</div>
+                                    <div className="text-[10px] text-gray-400 uppercase tracking-wider">Preview Available</div>
+                                  </div>
+                                  {content.musicUrl === track.url && (
+                                    <i className="fa-solid fa-check text-gold ml-auto"></i>
+                                  )}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Custom URL Input */}
+                        <div>
+                          <label className={`text-[10px] uppercase font-bold font-body mb-2 block ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Custom Music URL</label>
+                          <div className="flex flex-col sm:flex-row gap-4">
+                            <input
+                              type="text"
+                              value={content.musicUrl}
+                              onChange={(e) => handleContentChange('musicUrl', e.target.value)}
+                              placeholder="https://your-music-url.com/song.mp3"
+                              className={`flex-1 border p-4 rounded-xl outline-none transition-all text-sm shadow-sm ${isDarkMode
+                                ? 'bg-black/20 border-white/10 text-white focus:border-gold focus:ring-1 focus:ring-gold'
+                                : 'bg-white border-gray-200 text-gray-900 focus:border-gold focus:ring-1 focus:ring-gold'
                                 }`}
+                            />
+                            <button
+                              onClick={() => {
+                                if (content.musicUrl) {
+                                  const audio = new Audio(content.musicUrl);
+                                  audio.volume = 0.5;
+                                  audio.play().catch(() => showToast('Could not play audio', 'error'));
+                                  setTimeout(() => audio.pause(), 5000);
+                                }
+                              }}
+                              className="w-full sm:w-auto px-6 py-4 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all flex items-center justify-center gap-2 text-sm font-bold"
+                              title="Preview 5 seconds"
                             >
-                              <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all ${content.musicUrl === track.url
-                                  ? 'bg-gold text-white'
-                                  : 'bg-white text-gray-400 group-hover:bg-gold/20 group-hover:text-gold'
-                                  }`}>
-                                  <i className={`fa-solid ${track.icon}`}></i>
-                                </div>
-                                <div>
-                                  <div className="font-bold text-sm text-gray-800">{track.name}</div>
-                                  <div className="text-[10px] text-gray-400 uppercase tracking-wider">Preview Available</div>
-                                </div>
-                                {content.musicUrl === track.url && (
-                                  <i className="fa-solid fa-check text-gold ml-auto"></i>
-                                )}
-                              </div>
+                              <i className="fa-solid fa-play"></i> Preview
                             </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Custom URL Input */}
-                      <div>
-                        <label className="text-[10px] uppercase font-bold text-gray-500 font-body mb-2 block">Custom Music URL</label>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                          <input
-                            type="text"
-                            value={content.musicUrl}
-                            onChange={(e) => handleContentChange('musicUrl', e.target.value)}
-                            placeholder="https://your-music-url.com/song.mp3"
-                            className="flex-1 border border-gray-200 p-4 rounded-xl bg-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-all text-gray-900 shadow-sm"
-                          />
-                          <button
-                            onClick={() => {
-                              if (content.musicUrl) {
-                                const audio = new Audio(content.musicUrl);
-                                audio.volume = 0.5;
-                                audio.play().catch(() => showToast('Could not play audio', 'error'));
-                                setTimeout(() => audio.pause(), 5000);
-                              }
-                            }}
-                            className="w-full sm:w-auto px-6 py-4 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all flex items-center justify-center gap-2 text-sm font-bold"
-                            title="Preview 5 seconds"
-                          >
-                            <i className="fa-solid fa-play"></i> Preview
-                          </button>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-2">
-                          <i className="fa-solid fa-info-circle mr-1"></i>
-                          Supports MP3, OGG, and WAV formats. Use a direct file URL.
-                        </p>
-                      </div>
-
-                      {/* Current Music Info */}
-                      {content.musicUrl && (
-                        <div className="bg-gold/5 border border-gold/20 rounded-xl p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                          <div className="w-10 h-10 md:w-12 md:h-12 bg-gold/20 rounded-full flex items-center justify-center shrink-0">
-                            <i className="fa-solid fa-music text-gold text-lg md:text-xl"></i>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">Currently Selected</div>
-                            <div className="text-xs md:text-sm text-gray-800 font-mono truncate">{content.musicUrl}</div>
-                          </div>
-                          <button
-                            onClick={() => handleContentChange('musicUrl', '')}
-                            className="w-full sm:w-auto px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all text-[10px] font-bold uppercase"
-                          >
-                            <i className="fa-solid fa-trash mr-2"></i>Remove
-                          </button>
+                          <p className="text-xs text-gray-400 mt-2">
+                            <i className="fa-solid fa-info-circle mr-1"></i>
+                            Supports MP3, OGG, and WAV formats. Use a direct file URL.
+                          </p>
                         </div>
-                      )}
-                    </div>
-                  </div>
 
-                  <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100">
-                    <SectionHeader icon="fa-map-marked-alt" title="Venue Orchestration" description="Manage ceremony and reception locations." />
-                    <SectionHeader icon="fa-gem" title="Wedding Foundation" description="Update the key details that anchor your entire website." />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                      <InputField label="Couple Names" value={content.coupleNames} onChange={(e: any) => handleContentChange('coupleNames', e.target.value)} />
-                      <InputField label="Public Date String" value={content.weddingDate} onChange={(e: any) => handleContentChange('weddingDate', e.target.value)} />
-                      <InputField label="Wedding Time" value={content.weddingTime} onChange={(e: any) => handleContentChange('weddingTime', e.target.value)} placeholder="3:00 PM" />
-                      <div className="space-y-2">
-                        <label className="text-[10px] uppercase font-bold text-gray-500 font-body">Countdown Timer (Asia/Manila Time)</label>
-                        <input type="datetime-local" value={content.countdownDate.substring(0, 16)} onChange={e => handleContentChange('countdownDate', e.target.value)} className="w-full border border-gray-200 p-4 rounded-xl bg-white focus:border-gold outline-none transition-all text-gray-900 shadow-sm" />
-                      </div>
-                      <div className="md:col-span-2">
-                        <InputField
-                          label="Footer Text"
-                          value={content.footerText || ''}
-                          onChange={(e: any) => handleContentChange('footerText', e.target.value)}
-                          placeholder="Handcrafted with love for the celebration of a lifetime"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'lists' && (
-                <div className="space-y-6 md:space-y-12 animate-fadeIn">
-                  <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-                      <SectionHeader icon="fa-clock" title="Timeline Orchestrator" description="Manage the moments of your celebration." />
-                      <button onClick={() => handleAddItem('timelineItems', { time: '0:00 PM', event: 'New Event', description: 'Detail' })} className="w-full sm:w-auto bg-gold text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-gold/20">Add Event</button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                      {safeContent.timelineItems.map((item, i) => (
-                        <div key={i} className="p-4 md:p-6 border border-gray-100 rounded-2xl bg-gray-50 relative group">
-                          <button onClick={() => handleRemoveItem('timelineItems', i, item.event || 'Event')} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all"><i className="fa-solid fa-trash-can"></i></button>
-                          <input value={item.time} onChange={e => handleArrayUpdate('timelineItems', i, 'time', e.target.value)} className="w-full mb-2 text-gold font-bold bg-white border border-gray-200 rounded px-3 py-2 outline-none focus:border-gold text-sm" />
-                          <input value={item.event} onChange={e => handleArrayUpdate('timelineItems', i, 'event', e.target.value)} className="w-full mb-3 text-lg font-cursive bg-white border border-gray-200 rounded px-3 py-2 outline-none focus:border-gold" />
-                          <textarea value={item.description} onChange={e => handleArrayUpdate('timelineItems', i, 'description', e.target.value)} className="w-full text-xs text-gray-600 bg-white border border-gray-200 rounded px-3 py-2 outline-none focus:border-gold resize-none" rows={2} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
-                      <div className="shrink-0">
-                        <SectionHeader icon="fa-images" title="Gallery Curator" description="Upload photos or link to external albums." />
-                        <div className="mt-2 text-xs text-gray-400 font-body">
-                          <i className="fa-solid fa-image mr-2"></i>
-                          {safeContent.galleryImages.length} {safeContent.galleryImages.length === 1 ? 'image' : 'images'} in gallery
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 sm:flex gap-3 w-full md:w-auto items-end">
-                        <div className="flex-grow">
-                          <InputField label="Google Photos Shared Link" value={content.googlePhotosLink} onChange={(e: any) => handleContentChange('googlePhotosLink', e.target.value)} placeholder="https://photos.app.goo.gl/..." />
-                        </div>
-                        <div className="flex gap-2 w-full sm:w-auto">
-                          <button
-                            onClick={() => handleContentChange('googlePhotosLinkEnabled', !(content.googlePhotosLinkEnabled ?? true))}
-                            className={`flex-1 sm:flex-none px-4 py-4 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all sm:h-[58px] flex items-center justify-center gap-2 ${content.googlePhotosLinkEnabled !== false
-                              ? 'bg-green-500 text-white hover:bg-green-600'
-                              : 'bg-gray-300 text-gray-600 hover:bg-gray-400'
-                              }`}
-                            title={content.googlePhotosLinkEnabled !== false ? 'Album link is visible to guests' : 'Album link is hidden from guests'}
-                          >
-                            <i className={`fa-solid ${content.googlePhotosLinkEnabled !== false ? 'fa-lock-open' : 'fa-lock'}`}></i>
-                            <span className="sm:hidden lg:inline">{content.googlePhotosLinkEnabled !== false ? 'Unlocked' : 'Locked'}</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Upload Zone */}
-                    <div
-                      className={`relative mb-8 border-2 border-dashed rounded-2xl p-8 text-center transition-all ${dragActive ? 'border-gold bg-gold/5' : 'border-gray-200 hover:border-gold/50'
-                        } ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
-                      onDragEnter={handleDrag}
-                      onDragLeave={handleDrag}
-                      onDragOver={handleDrag}
-                      onDrop={handleDrop}
-                    >
-                      <input
-                        type="file"
-                        id="gallery-upload"
-                        multiple
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e.target.files)}
-                        className="hidden"
-                        disabled={isUploading}
-                      />
-
-                      {isUploading ? (
-                        <div className="space-y-4">
-                          <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto">
-                            <i className="fa-solid fa-spinner fa-spin text-gold text-2xl"></i>
-                          </div>
-                          <p className="text-sm font-bold text-gray-700">Uploading to Firebase Storage...</p>
-                          <div className="w-full bg-gray-200 rounded-full h-2 max-w-xs mx-auto">
-                            <div
-                              className="bg-gold h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${uploadProgress}%` }}
-                            ></div>
-                          </div>
-                          <p className="text-xs text-gray-500">{Math.round(uploadProgress)}%</p>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i className="fa-solid fa-cloud-arrow-up text-gray-400 text-2xl"></i>
-                          </div>
-                          <h3 className="text-lg font-serif text-gray-800 mb-2">Upload Images</h3>
-                          <p className="text-sm text-gray-500 mb-4">Drag and drop images here, or click to browse</p>
-                          <label
-                            htmlFor="gallery-upload"
-                            className="inline-block bg-gold text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-gold/20 hover:bg-gold/90 cursor-pointer transition-all"
-                          >
-                            <i className="fa-solid fa-plus mr-2"></i>
-                            Select Images
-                          </label>
-                          <p className="text-xs text-gray-400 mt-4">Supports JPG, PNG, WebP • Max 10MB per file</p>
-                        </>
-                      )}
-                    </div>
-
-                    {safeContent.galleryImages.length === 0 ? (
-                      <div className="text-center py-20 border-2 border-dashed border-gray-200 rounded-2xl">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <i className="fa-solid fa-image text-gray-400 text-2xl"></i>
-                        </div>
-                        <h3 className="text-lg font-serif text-gray-600 mb-2">No Images Yet</h3>
-                        <p className="text-sm text-gray-400 mb-6">Click "Add Photo" to start building your gallery</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {safeContent.galleryImages.map((img, i) => (
-                          <div key={i} className="relative group aspect-square rounded-xl overflow-hidden shadow-sm border-2 border-gray-100 hover:border-gold/30 transition-all">
-                            <img src={img} className="w-full h-full object-cover" alt="Gallery preview" loading="lazy" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all flex flex-col p-3 justify-between">
-                              <div className="flex justify-between items-start">
-                                <span className="text-white text-xs bg-black/50 px-2 py-1 rounded font-body">#{i + 1}</span>
-                                <button onClick={() => handleDeleteImage(img, i)} className="text-white hover:text-red-400 bg-black/50 w-8 h-8 rounded-full flex items-center justify-center transition-all">
-                                  <i className="fa-solid fa-trash-can"></i>
-                                </button>
-                              </div>
-                              <div className="space-y-2">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setUrlEditModal({ show: true, index: i, currentUrl: img, newUrl: img });
-                                  }}
-                                  className="w-full bg-white/90 hover:bg-white text-gray-800 px-3 py-2 rounded text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm"
-                                >
-                                  <i className="fa-solid fa-pen"></i> Edit URL
-                                </button>
-                              </div>
+                        {/* Current Music Info */}
+                        {content.musicUrl && (
+                          <div className={`border rounded-xl p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 ${isDarkMode ? 'bg-gold/10 border-gold/20' : 'bg-gold/5 border-gold/20'}`}>
+                            <div className="w-10 h-10 md:w-12 md:h-12 bg-gold/20 rounded-full flex items-center justify-center shrink-0">
+                              <i className="fa-solid fa-music text-gold text-lg md:text-xl"></i>
                             </div>
+                            <div className="flex-1 min-w-0">
+                              <div className={`text-[10px] uppercase tracking-widest font-bold mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Currently Selected</div>
+                              <div className={`text-xs md:text-sm font-mono truncate ${isDarkMode ? 'text-gold' : 'text-gray-800'}`}>{content.musicUrl}</div>
+                            </div>
+                            <button
+                              onClick={() => handleContentChange('musicUrl', '')}
+                              className={`w-full sm:w-auto px-4 py-2 rounded-lg transition-all text-[10px] font-bold uppercase ${isDarkMode ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
+                            >
+                              <i className="fa-solid fa-trash mr-2"></i>Remove
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} rounded-3xl p-6 md:p-10 shadow-sm border transition-colors duration-300`}>
+                      <SectionHeader icon="fa-map-marked-alt" title="Venue Orchestration" description="Manage ceremony and reception locations." isDarkMode={isDarkMode} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                        <InputField label="Couple Names" value={content.coupleNames} onChange={(e: any) => handleContentChange('coupleNames', e.target.value)} isDarkMode={isDarkMode} />
+                        <InputField label="Public Date String" value={content.weddingDate} onChange={(e: any) => handleContentChange('weddingDate', e.target.value)} isDarkMode={isDarkMode} />
+                        <InputField label="Wedding Time" value={content.weddingTime} onChange={(e: any) => handleContentChange('weddingTime', e.target.value)} placeholder="3:00 PM" isDarkMode={isDarkMode} />
+                        <div className="space-y-2">
+                          <label className={`text-[10px] uppercase font-bold font-body ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Countdown Timer (Asia/Manila Time)</label>
+                          <input
+                            type="datetime-local"
+                            value={content.countdownDate.substring(0, 16)}
+                            onChange={e => handleContentChange('countdownDate', e.target.value)}
+                            className={`w-full border p-4 rounded-xl outline-none transition-all text-sm shadow-sm ${isDarkMode
+                              ? 'bg-black/20 border-white/10 text-white focus:border-gold'
+                              : 'bg-white border-gray-200 text-gray-900 focus:border-gold'
+                              }`}
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <InputField
+                            label="Footer Text"
+                            value={content.footerText || ''}
+                            onChange={(e: any) => handleContentChange('footerText', e.target.value)}
+                            placeholder="Handcrafted with love for the celebration of a lifetime"
+                            isDarkMode={isDarkMode}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'lists' && (
+                  <motion.div
+                    key="lists-tab"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-10"
+                  >
+                    <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} rounded-3xl p-6 md:p-10 shadow-sm border transition-colors duration-300`}>
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                        <SectionHeader icon="fa-clock" title="Timeline Orchestrator" description="Manage the moments of your celebration." isDarkMode={isDarkMode} />
+                        <button onClick={() => handleAddItem('timelineItems', { time: '0:00 PM', event: 'New Event', description: 'Detail' })} className="w-full sm:w-auto bg-gold text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-gold/20">Add Event</button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        {safeContent.timelineItems.map((item, i) => (
+                          <div key={i} className={`p-4 md:p-6 border rounded-2xl relative group transition-colors ${isDarkMode ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
+                            <button onClick={() => handleRemoveItem('timelineItems', i, item.event || 'Event')} className={`absolute top-4 right-4 transition-all opacity-100 sm:opacity-0 group-hover:opacity-100 ${isDarkMode ? 'text-white/20 hover:text-red-400' : 'text-gray-300 hover:text-red-500'}`}><i className="fa-solid fa-trash-can"></i></button>
+                            <input value={item.time} onChange={e => handleArrayUpdate('timelineItems', i, 'time', e.target.value)} className={`w-full mb-2 font-bold rounded px-3 py-2 outline-none focus:border-gold text-sm ${isDarkMode ? 'bg-black/20 border-white/10 text-gold' : 'bg-white border-gray-200 text-gold'}`} />
+                            <input value={item.event} onChange={e => handleArrayUpdate('timelineItems', i, 'event', e.target.value)} className={`w-full mb-3 text-lg font-cursive rounded px-3 py-2 outline-none focus:border-gold ${isDarkMode ? 'bg-black/20 border-white/10 text-white' : 'bg-white border-gray-200 text-gray-800'}`} />
+                            <textarea value={item.description} onChange={e => handleArrayUpdate('timelineItems', i, 'description', e.target.value)} className={`w-full text-xs rounded px-3 py-2 outline-none focus:border-gold resize-none ${isDarkMode ? 'bg-black/20 border-white/10 text-gray-400' : 'bg-white border-gray-200 text-gray-600'}`} rows={2} />
                           </div>
                         ))}
                       </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'guests' && (
-                <div className="space-y-10 animate-fadeIn">
-                  <div className="bg-white rounded-3xl p-10 shadow-sm border border-gray-100">
-                    <SectionHeader icon="fa-chart-pie" title="Guest Analytics" description="Live statistics of your wedding attendance." />
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-                      {[
-                        { label: 'Total Souls', value: stats.totalGuests, color: 'text-gold', icon: 'fa-users', bg: 'bg-gold/10' },
-                        { label: 'Attending', value: stats.attendingCount, color: 'text-green-500', icon: 'fa-heart', bg: 'bg-green-50' },
-                        { label: 'Declined', value: stats.declinedCount, color: 'text-red-400', icon: 'fa-heart-crack', bg: 'bg-red-50' },
-                        { label: 'Pending', value: stats.pendingCount, color: 'text-gray-400', icon: 'fa-question', bg: 'bg-gray-50' },
-                        { label: 'Plus Ones', value: stats.plusOneCount, color: 'text-blue-500', icon: 'fa-user-plus', bg: 'bg-blue-50' }
-                      ].map(stat => (
-                        <div key={stat.label} className={`p-6 ${stat.bg} rounded-2xl border border-gray-100 flex flex-col items-center transition-all hover:scale-105`}>
-                          <i className={`fa-solid ${stat.icon} ${stat.color} mb-3 text-xl`}></i>
-                          <div className="text-3xl font-serif-sc mb-1">{stat.value}</div>
-                          <div className="text-[10px] uppercase tracking-widest font-bold text-gray-500">{stat.label}</div>
-                        </div>
-                      ))}
                     </div>
-                  </div>
 
-                  <div className="bg-white rounded-3xl p-10 shadow-sm border border-gray-100">
-                    <SectionHeader icon="fa-users-gear" title="Guest List Management" description="Advanced search, filter, and bulk operations." />
+                    <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} rounded-3xl p-6 md:p-10 shadow-sm border transition-colors duration-300`}>
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
+                        <div className="shrink-0">
+                          <SectionHeader icon="fa-images" title="Gallery Curator" description="Upload photos or link to external albums." isDarkMode={isDarkMode} />
+                          <div className={`mt-2 text-xs font-body ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                            <i className="fa-solid fa-image mr-2"></i>
+                            {safeContent.galleryImages.length} {safeContent.galleryImages.length === 1 ? 'image' : 'images'} in gallery
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:flex gap-3 w-full md:w-auto items-end">
+                          <div className="flex-grow">
+                            <InputField label="Google Photos Shared Link" value={content.googlePhotosLink} onChange={(e: any) => handleContentChange('googlePhotosLink', e.target.value)} placeholder="https://photos.app.goo.gl/..." isDarkMode={isDarkMode} />
+                          </div>
+                          <div className="flex gap-2 w-full sm:w-auto">
+                            <button
+                              onClick={() => handleContentChange('googlePhotosLinkEnabled', !(content.googlePhotosLinkEnabled ?? true))}
+                              className={`flex-1 sm:flex-none px-4 py-4 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all sm:h-[58px] flex items-center justify-center gap-2 ${content.googlePhotosLinkEnabled !== false
+                                ? 'bg-green-500 text-white hover:bg-green-600'
+                                : 'bg-gray-300 text-gray-600 hover:bg-gray-400'
+                                }`}
+                              title={content.googlePhotosLinkEnabled !== false ? 'Album link is visible to guests' : 'Album link is hidden from guests'}
+                            >
+                              <i className={`fa-solid ${content.googlePhotosLinkEnabled !== false ? 'fa-lock-open' : 'fa-lock'}`}></i>
+                              <span className="sm:hidden lg:inline">{content.googlePhotosLinkEnabled !== false ? 'Unlocked' : 'Locked'}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
 
-                    {/* Search & Filter Controls */}
-                    <div className="flex flex-col gap-4 mb-8">
-                      <div className="relative flex-1">
-                        <i className="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                      {/* Upload Zone */}
+                      <div
+                        className={`relative mb-8 border-2 border-dashed rounded-2xl p-8 text-center transition-all ${dragActive
+                          ? 'border-gold bg-gold/5'
+                          : isDarkMode ? 'border-white/10 hover:border-gold/50' : 'border-gray-200 hover:border-gold/50'
+                          } ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                      >
                         <input
-                          type="text"
-                          placeholder="Search by name or email..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="w-full pl-12 pr-10 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-gold outline-none transition-all text-sm"
+                          type="file"
+                          id="gallery-upload"
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e.target.files)}
+                          className="hidden"
+                          disabled={isUploading}
                         />
-                        {searchTerm && (
-                          <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold">
-                            <i className="fa-solid fa-xmark"></i>
-                          </button>
+
+                        {isUploading ? (
+                          <div className="space-y-4">
+                            <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto">
+                              <i className="fa-solid fa-spinner fa-spin text-gold text-2xl"></i>
+                            </div>
+                            <p className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Uploading to Firebase Storage...</p>
+                            <div className={`w-full rounded-full h-2 max-w-xs mx-auto ${isDarkMode ? 'bg-white/10' : 'bg-gray-200'}`}>
+                              <div
+                                className="bg-gold h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${uploadProgress}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-xs text-gray-500">{Math.round(uploadProgress)}%</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isDarkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+                              <i className="fa-solid fa-cloud-arrow-up text-gray-400 text-2xl"></i>
+                            </div>
+                            <h3 className={`text-lg font-serif mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Upload Images</h3>
+                            <p className="text-sm text-gray-500 mb-4">Drag and drop images here, or click to browse</p>
+                            <label
+                              htmlFor="gallery-upload"
+                              className="inline-block bg-gold text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-gold/20 hover:bg-gold/90 cursor-pointer transition-all"
+                            >
+                              <i className="fa-solid fa-plus mr-2"></i>
+                              Select Images
+                            </label>
+                            <p className="text-xs text-gray-400 mt-4">Supports JPG, PNG, WebP • Max 10MB per file</p>
+                          </>
                         )}
                       </div>
 
-                      <div className="grid grid-cols-2 md:flex gap-2">
-                        <select
-                          value={statusFilter}
-                          onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                          className="flex-1 md:flex-none px-3 md:px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-gold outline-none text-xs md:text-sm"
-                        >
-                          <option value="all">All Status</option>
-                          <option value={RSVPStatus.ATTENDING}>Attending</option>
-                          <option value={RSVPStatus.NOT_ATTENDING}>Declined</option>
-                          <option value={RSVPStatus.UNDECIDED}>Pending</option>
-                        </select>
-
-                        <select
-                          value={sortBy}
-                          onChange={(e) => setSortBy(e.target.value as SortOption)}
-                          className="flex-1 md:flex-none px-3 md:px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-gold outline-none text-xs md:text-sm"
-                        >
-                          <option value="name-asc">Name A-Z</option>
-                          <option value="name-desc">Name Z-A</option>
-                          <option value="recent">Recent First</option>
-                          <option value="status">By Status</option>
-                        </select>
-
-                        <button
-                          onClick={exportToCSV}
-                          className="col-span-2 md:col-span-1 px-4 md:px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all flex items-center justify-center gap-2 text-xs md:text-sm font-bold"
-                        >
-                          <i className="fa-solid fa-download"></i>
-                          <span className="hidden sm:inline">Export CSV</span>
-                          <span className="sm:hidden">Export</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Bulk Actions Toolbar */}
-                    {selectedGuests.size > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-gold/10 border border-gold/30 rounded-xl p-3 md:p-4 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3"
-                      >
-                        <div className="flex items-center gap-3">
-                          <i className="fa-solid fa-check-double text-gold"></i>
-                          <span className="font-bold text-xs md:text-sm">{selectedGuests.size} guest{selectedGuests.size > 1 ? 's' : ''} selected</span>
+                      {safeContent.galleryImages.length === 0 ? (
+                        <div className={`text-center py-20 border-2 border-dashed rounded-2xl ${isDarkMode ? 'border-white/5' : 'border-gray-200'}`}>
+                          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isDarkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+                            <i className="fa-solid fa-image text-gray-400 text-2xl"></i>
+                          </div>
+                          <h3 className={`text-lg font-serif mb-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>No Images Yet</h3>
+                          <p className="text-sm text-gray-400 mb-6">Click "Add Photo" to start building your gallery</p>
                         </div>
-                        <div className="flex gap-2 flex-wrap w-full md:w-auto">
-                          <button
-                            onClick={handleBulkEmail}
-                            className="flex-1 md:flex-none px-3 md:px-4 py-2 bg-gold text-white rounded-lg hover:bg-gold/90 transition-all flex items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase"
-                          >
-                            <i className="fa-solid fa-paper-plane"></i>
-                            <span className="hidden sm:inline">Email</span>
-                          </button>
-                          <button
-                            onClick={handleBulkDelete}
-                            className="flex-1 md:flex-none px-3 md:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all flex items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase"
-                          >
-                            <i className="fa-solid fa-trash"></i>
-                            <span className="hidden sm:inline">Delete</span>
-                          </button>
-                          <button
-                            onClick={() => setSelectedGuests(new Set())}
-                            className="flex-1 md:flex-none px-3 md:px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all text-[10px] md:text-xs font-bold uppercase"
-                          >
-                            Clear
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {/* Follow Up Pending Guests */}
-                    {stats.pendingCount > 0 && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 md:p-4 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <i className="fa-solid fa-clock text-yellow-600"></i>
-                          <span className="text-xs md:text-sm text-yellow-800">{stats.pendingCount} guest{stats.pendingCount > 1 ? 's' : ''} haven't responded yet</span>
-                        </div>
-                        <button
-                          onClick={() => {
-                            const undecidedGuests = rsvps.filter(r => r.status === RSVPStatus.UNDECIDED);
-                            setEmailModal({
-                              show: true,
-                              recipients: undecidedGuests,
-                              subject: "Quick Reminder: Louie & Florie's Wedding",
-                              message: "Hi!\n\nWe hope you're doing well. We're finalizing our wedding numbers and wanted to check if you'll be able to join us.\n\nPlease let us know by visiting our website.\n\nBest,\nLouie & Florie"
-                            });
-                          }}
-                          className="w-full md:w-auto px-4 md:px-6 py-2 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition-all flex items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase"
-                        >
-                          <i className="fa-solid fa-paper-plane"></i> Follow Up All
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Guest Table - Desktop */}
-                    <div className="hidden md:block overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b border-gray-100 text-left">
-                            <th className="pb-4 pl-4 text-[10px] uppercase tracking-widest text-gray-400 font-black">
-                              <input
-                                type="checkbox"
-                                checked={selectedGuests.size === filteredGuests.length && filteredGuests.length > 0}
-                                onChange={toggleSelectAll}
-                                className="w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold cursor-pointer"
-                              />
-                            </th>
-                            <th className="pb-4 pl-4 text-[10px] uppercase tracking-widest text-gray-400 font-black">Guest</th>
-                            <th className="pb-4 text-[10px] uppercase tracking-widest text-gray-400 font-black">Status</th>
-                            <th className="pb-4 text-[10px] uppercase tracking-widest text-gray-400 font-black">Email</th>
-                            <th className="pb-4 text-[10px] uppercase tracking-widest text-gray-400 font-black text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {filteredGuests.map(rsvp => (
-                            <tr key={rsvp.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                              <td className="py-5 pl-4">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedGuests.has(rsvp.id)}
-                                  onChange={() => toggleSelectGuest(rsvp.id)}
-                                  className="w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold cursor-pointer"
-                                />
-                              </td>
-                              <td className="py-5 pl-4">
-                                <div className="font-bold text-gray-800">{rsvp.name}</div>
-                                {rsvp.plusOne && <div className="text-xs text-gray-400 mt-1 flex items-center gap-1"><i className="fa-solid fa-user-plus text-[10px]"></i> +1 Guest</div>}
-                              </td>
-                              <td className="py-5">
-                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${rsvp.status === RSVPStatus.ATTENDING ? 'bg-green-100 text-green-600' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
-                                  {rsvp.status === RSVPStatus.ATTENDING ? 'Accepted' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'Declined' : 'Pending'}
-                                </span>
-                              </td>
-                              <td className="py-5 text-sm text-gray-500 font-body">{rsvp.email}</td>
-                              <td className="py-5 text-right">
-                                <div className="flex gap-2 items-center justify-end">
-                                  {rsvp.notes && (
-                                    <div className="text-xs text-gray-500 italic max-w-xs truncate mr-2" title={rsvp.notes}>
-                                      "{rsvp.notes}"
-                                    </div>
-                                  )}
-                                  <button onClick={() => onSendReminder(rsvp.id)} className="text-gray-300 hover:text-gold transition-colors p-2" title="Send Reminder">
-                                    <i className="fa-solid fa-bell"></i>
-                                  </button>
-                                  <button onClick={() => onDeleteRSVP(rsvp.id)} className="text-gray-300 hover:text-red-500 transition-colors p-2" title="Delete Guest">
+                      ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                          {safeContent.galleryImages.map((img, i) => (
+                            <div key={i} className={`relative group aspect-square rounded-xl overflow-hidden shadow-sm border-2 transition-all ${isDarkMode ? 'border-white/5 hover:border-gold/30' : 'border-gray-100 hover:border-gold/30'}`}>
+                              <img src={img} className="w-full h-full object-cover" alt="Gallery preview" loading="lazy" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all flex flex-col p-3 justify-between">
+                                <div className="flex justify-between items-start">
+                                  <span className="text-white text-xs bg-black/50 px-2 py-1 rounded font-body">#{i + 1}</span>
+                                  <button onClick={() => handleDeleteImage(img, i)} className="text-white hover:text-red-400 bg-black/50 w-8 h-8 rounded-full flex items-center justify-center transition-all">
                                     <i className="fa-solid fa-trash-can"></i>
                                   </button>
                                 </div>
-                              </td>
-                            </tr>
-                          ))}
-                          {filteredGuests.length === 0 && (
-                            <tr>
-                              <td colSpan={5} className="py-20 text-center text-gray-300 italic">
-                                {searchTerm || statusFilter !== 'all' ? 'No guests match your filters' : 'No responses recorded yet.'}
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Guest Cards - Mobile */}
-                    <div className="md:hidden space-y-4">
-                      {filteredGuests.length > 0 ? (
-                        filteredGuests.map(rsvp => (
-                          <div key={rsvp.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-start gap-3 flex-1">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedGuests.has(rsvp.id)}
-                                  onChange={() => toggleSelectGuest(rsvp.id)}
-                                  className="w-5 h-5 rounded border-gray-300 text-gold focus:ring-gold cursor-pointer mt-1"
-                                />
-                                <div className="flex-1">
-                                  <div className="font-bold text-gray-800 text-base mb-1">{rsvp.name}</div>
-                                  {rsvp.plusOne && (
-                                    <div className="text-xs text-gray-400 flex items-center gap-1 mb-2">
-                                      <i className="fa-solid fa-user-plus text-[10px]"></i> +1 Guest
-                                    </div>
-                                  )}
-                                  <div className="text-xs text-gray-500 mb-2 break-all">{rsvp.email}</div>
-                                  <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${rsvp.status === RSVPStatus.ATTENDING ? 'bg-green-100 text-green-600' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
-                                    {rsvp.status === RSVPStatus.ATTENDING ? 'Accepted' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'Declined' : 'Pending'}
-                                  </span>
+                                <div className="space-y-2">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setUrlEditModal({ show: true, index: i, currentUrl: img, newUrl: img });
+                                    }}
+                                    className={`w-full px-3 py-2 rounded text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm ${isDarkMode ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-white/90 hover:bg-white text-gray-800'}`}
+                                  >
+                                    <i className="fa-solid fa-pen"></i> Edit URL
+                                  </button>
                                 </div>
                               </div>
                             </div>
-
-                            {rsvp.notes && (
-                              <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                                <div className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Notes</div>
-                                <div className="text-xs text-gray-600 italic">"{rsvp.notes}"</div>
-                              </div>
-                            )}
-
-                            <div className="flex gap-2 pt-2 border-t border-gray-100">
-                              <button
-                                onClick={() => onSendReminder(rsvp.id)}
-                                className="flex-1 bg-gold/10 text-gold px-4 py-2 rounded-lg hover:bg-gold/20 transition-all flex items-center justify-center gap-2 text-xs font-bold"
-                              >
-                                <i className="fa-solid fa-bell"></i> Remind
-                              </button>
-                              <button
-                                onClick={() => onDeleteRSVP(rsvp.id)}
-                                className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-all flex items-center justify-center gap-2 text-xs font-bold"
-                              >
-                                <i className="fa-solid fa-trash-can"></i> Delete
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="bg-gray-50 rounded-xl p-12 text-center">
-                          <i className="fa-solid fa-users-slash text-4xl text-gray-300 mb-4"></i>
-                          <p className="text-gray-400 italic">
-                            {searchTerm || statusFilter !== 'all' ? 'No guests match your filters' : 'No responses recorded yet.'}
-                          </p>
+                          ))}
                         </div>
                       )}
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'guests' && (
+                  <motion.div
+                    key="guests-tab"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-10"
+                  >
+                    <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} rounded-3xl p-6 md:p-10 shadow-sm border transition-colors duration-300`}>
+                      <SectionHeader icon="fa-chart-pie" title="Guest Analytics" description="Live statistics of your wedding attendance." isDarkMode={isDarkMode} />
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+                        {[
+                          { label: 'Total Souls', value: stats.totalGuests, color: 'text-gold', icon: 'fa-users', bg: isDarkMode ? 'bg-gold/10' : 'bg-gold/10' },
+                          { label: 'Attending', value: stats.attendingCount, color: 'text-green-500', icon: 'fa-heart', bg: isDarkMode ? 'bg-green-500/10' : 'bg-green-50' },
+                          { label: 'Declined', value: stats.declinedCount, color: 'text-red-400', icon: 'fa-heart-crack', bg: isDarkMode ? 'bg-red-500/10' : 'bg-red-50' },
+                          { label: 'Pending', value: stats.pendingCount, color: 'text-gray-400', icon: 'fa-question', bg: isDarkMode ? 'bg-white/5' : 'bg-gray-50' },
+                          { label: 'Plus Ones', value: stats.plusOneCount, color: 'text-blue-500', icon: 'fa-user-plus', bg: isDarkMode ? 'bg-blue-500/10' : 'bg-blue-50' }
+                        ].map(stat => (
+                          <div key={stat.label} className={`p-6 ${stat.bg} rounded-2xl border flex flex-col items-center transition-all hover:scale-105 ${isDarkMode ? 'border-white/5' : 'border-gray-100'}`}>
+                            <i className={`fa-solid ${stat.icon} ${stat.color} mb-3 text-xl`}></i>
+                            <div className={`text-3xl font-serif-sc mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{stat.value}</div>
+                            <div className={`text-[10px] uppercase tracking-widest font-bold ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>{stat.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className={`${isDarkMode ? 'bg-[#262626] border-white/5' : 'bg-white border-gray-100'} rounded-3xl p-10 shadow-sm border transition-colors duration-300`}>
+                      <SectionHeader icon="fa-users-gear" title="Guest List Management" description="Advanced search, filter, and bulk operations." isDarkMode={isDarkMode} />
+
+                      {/* Search & Filter Controls */}
+                      <div className="flex flex-col gap-4 mb-8">
+                        <div className="relative flex-1">
+                          <i className={`fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 ${isDarkMode ? 'text-white/30' : 'text-black/50'}`}></i>
+                          <input
+                            type="text"
+                            placeholder="Search by name or email..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className={`w-full pl-12 pr-10 py-3 rounded-xl outline-none transition-all text-sm ${isDarkMode
+                              ? 'bg-black/20 border-white/10 text-white focus:border-gold'
+                              : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-gold'}`}
+                          />
+                          {searchTerm && (
+                            <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold">
+                              <i className="fa-solid fa-xmark"></i>
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 md:flex gap-2">
+                          <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                            className={`flex-1 md:flex-none px-3 md:px-4 py-3 rounded-xl outline-none text-xs md:text-sm transition-colors ${isDarkMode
+                              ? 'bg-black/20 border-white/10 text-white focus:border-gold'
+                              : 'bg-gray-50 border-gray-100 text-gray-900 focus:border-gold'}`}
+                          >
+                            <option value="all">All Status</option>
+                            <option value={RSVPStatus.ATTENDING}>Attending</option>
+                            <option value={RSVPStatus.NOT_ATTENDING}>Declined</option>
+                            <option value={RSVPStatus.UNDECIDED}>Pending</option>
+                          </select>
+
+                          <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as SortOption)}
+                            className={`flex-1 md:flex-none px-3 md:px-4 py-3 rounded-xl outline-none text-xs md:text-sm transition-colors ${isDarkMode
+                              ? 'bg-black/20 border-white/10 text-white focus:border-gold'
+                              : 'bg-gray-50 border-gray-100 text-gray-900 focus:border-gold'}`}
+                          >
+                            <option value="name-asc">Name A-Z</option>
+                            <option value="name-desc">Name Z-A</option>
+                            <option value="recent">Recent First</option>
+                            <option value="status">By Status</option>
+                          </select>
+
+                          <button
+                            onClick={exportToCSV}
+                            className="col-span-2 md:col-span-1 px-4 md:px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all flex items-center justify-center gap-2 text-xs md:text-sm font-bold shadow-lg shadow-green-500/20"
+                          >
+                            <i className="fa-solid fa-download"></i>
+                            <span className="hidden sm:inline">Export CSV</span>
+                            <span className="sm:hidden">Export</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Bulk Actions Toolbar */}
+                      {selectedGuests.size > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`border rounded-xl p-3 md:p-4 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 ${isDarkMode ? 'bg-gold/10 border-gold/30 text-white' : 'bg-gold/10 border-gold/30 text-gray-900'}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <i className="fa-solid fa-check-double text-gold"></i>
+                            <span className="font-bold text-xs md:text-sm">{selectedGuests.size} guest{selectedGuests.size > 1 ? 's' : ''} selected</span>
+                          </div>
+                          <div className="flex gap-2 flex-wrap w-full md:w-auto">
+                            <button
+                              onClick={handleBulkEmail}
+                              className="flex-1 md:flex-none px-3 md:px-4 py-2 bg-gold text-white rounded-lg hover:bg-gold/90 transition-all flex items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase"
+                            >
+                              <i className="fa-solid fa-paper-plane"></i>
+                              <span className="hidden sm:inline">Email</span>
+                            </button>
+                            <button
+                              onClick={handleBulkDelete}
+                              className="flex-1 md:flex-none px-3 md:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all flex items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase"
+                            >
+                              <i className="fa-solid fa-trash"></i>
+                              <span className="hidden sm:inline">Delete</span>
+                            </button>
+                            <button
+                              onClick={() => setSelectedGuests(new Set())}
+                              className={`flex-1 md:flex-none px-3 md:px-4 py-2 rounded-lg transition-all text-[10px] md:text-xs font-bold uppercase ${isDarkMode ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                            >
+                              Clear
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Follow Up Pending Guests */}
+                      {stats.pendingCount > 0 && (
+                        <div className={`border rounded-xl p-3 md:p-4 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 ${isDarkMode ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' : 'bg-yellow-50 border-yellow-200 text-yellow-800'}`}>
+                          <div className="flex items-center gap-3">
+                            <i className="fa-solid fa-clock"></i>
+                            <span className="text-xs md:text-sm">{stats.pendingCount} guest{stats.pendingCount > 1 ? 's' : ''} haven't responded yet</span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              const undecidedGuests = rsvps.filter(r => r.status === RSVPStatus.UNDECIDED);
+                              setEmailModal({
+                                show: true,
+                                recipients: undecidedGuests,
+                                subject: "Quick Reminder: Louie & Florie's Wedding",
+                                message: "Hi!\n\nWe hope you're doing well. We're finalizing our wedding numbers and wanted to check if you'll be able to join us.\n\nPlease let us know by visiting our website.\n\nBest,\nLouie & Florie"
+                              });
+                            }}
+                            className="w-full md:w-auto px-4 md:px-6 py-2 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition-all flex items-center justify-center gap-2 text-[10px] md:text-xs font-bold uppercase"
+                          >
+                            <i className="fa-solid fa-paper-plane"></i> Follow Up All
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Guest Table - Desktop */}
+                      <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className={`border-b text-left transition-colors ${isDarkMode ? 'border-white/5' : 'border-gray-100'}`}>
+                              <th className="pb-4 pl-4 text-[10px] uppercase tracking-widest text-gray-400 font-black">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedGuests.size === filteredGuests.length && filteredGuests.length > 0}
+                                  onChange={toggleSelectAll}
+                                  className={`w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold cursor-pointer transition-colors ${isDarkMode ? 'bg-black/40 border-white/20' : ''}`}
+                                />
+                              </th>
+                              <th className="pb-4 pl-4 text-[10px] uppercase tracking-widest text-gray-400 font-black">Guest</th>
+                              <th className="pb-4 text-[10px] uppercase tracking-widest text-gray-400 font-black">Status</th>
+                              <th className="pb-4 text-[10px] uppercase tracking-widest text-gray-400 font-black">Email</th>
+                              <th className="pb-4 text-[10px] uppercase tracking-widest text-gray-400 font-black text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filteredGuests.map(rsvp => (
+                              <tr key={rsvp.id} className={`border-b transition-colors ${isDarkMode ? 'border-white/5 hover:bg-white/5' : 'border-gray-50 hover:bg-gray-50'}`}>
+                                <td className="py-5 pl-4">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedGuests.has(rsvp.id)}
+                                    onChange={() => toggleSelectGuest(rsvp.id)}
+                                    className={`w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold cursor-pointer transition-colors ${isDarkMode ? 'bg-black/40 border-white/20' : ''}`}
+                                  />
+                                </td>
+                                <td className="py-5 pl-4">
+                                  <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{rsvp.name}</div>
+                                  {rsvp.plusOne && <div className="text-xs text-gray-400 mt-1 flex items-center gap-1"><i className="fa-solid fa-user-plus text-[10px]"></i> +1 Guest</div>}
+                                </td>
+                                <td className="py-5">
+                                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${rsvp.status === RSVPStatus.ATTENDING ? 'bg-green-100 text-green-600' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
+                                    {rsvp.status === RSVPStatus.ATTENDING ? 'Accepted' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'Declined' : 'Pending'}
+                                  </span>
+                                </td>
+                                <td className={`py-5 text-sm font-body ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{rsvp.email}</td>
+                                <td className="py-5 text-right">
+                                  <div className="flex gap-2 items-center justify-end">
+                                    {rsvp.notes && (
+                                      <div className={`text-xs italic max-w-xs truncate mr-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`} title={rsvp.notes}>
+                                        "{rsvp.notes}"
+                                      </div>
+                                    )}
+                                    <button onClick={() => onSendReminder(rsvp.id)} className={`transition-colors p-2 ${isDarkMode ? 'text-gray-600 hover:text-gold' : 'text-gray-300 hover:text-gold'}`} title="Send Reminder">
+                                      <i className="fa-solid fa-bell"></i>
+                                    </button>
+                                    <button onClick={() => onDeleteRSVP(rsvp.id)} className={`transition-colors p-2 ${isDarkMode ? 'text-gray-600 hover:text-red-500' : 'text-gray-300 hover:text-red-500'}`} title="Delete Guest">
+                                      <i className="fa-solid fa-trash-can"></i>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                            {filteredGuests.length === 0 && (
+                              <tr>
+                                <td colSpan={5} className="py-20 text-center text-gray-300 italic">
+                                  {searchTerm || statusFilter !== 'all' ? 'No guests match your filters' : 'No responses recorded yet.'}
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Guest Cards - Mobile */}
+                      <div className="md:hidden space-y-4">
+                        {filteredGuests.length > 0 ? (
+                          filteredGuests.map(rsvp => (
+                            <div key={rsvp.id} className={`p-5 rounded-2xl border transition-colors ${isDarkMode ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
+                              <div className="flex justify-between items-start mb-4">
+                                <div className="flex items-center gap-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedGuests.has(rsvp.id)}
+                                    onChange={() => toggleSelectGuest(rsvp.id)}
+                                    className={`w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold cursor-pointer ${isDarkMode ? 'bg-black/40 border-white/20' : ''}`}
+                                  />
+                                  <div>
+                                    <div className={`font-bold transition-colors ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{rsvp.name}</div>
+                                    <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${rsvp.status === RSVPStatus.ATTENDING ? 'bg-green-100 text-green-600' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
+                                      {rsvp.status === RSVPStatus.ATTENDING ? 'Accepted' : rsvp.status === RSVPStatus.NOT_ATTENDING ? 'Declined' : 'Pending'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {rsvp.notes && (
+                                <div className={`rounded-lg p-3 mb-3 transition-colors ${isDarkMode ? 'bg-black/20' : 'bg-gray-50'}`}>
+                                  <div className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Notes</div>
+                                  <div className={`text-xs italic ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>"{rsvp.notes}"</div>
+                                </div>
+                              )}
+
+                              <div className={`flex gap-2 pt-2 border-t transition-colors ${isDarkMode ? 'border-white/5' : 'border-gray-100'}`}>
+                                <button
+                                  onClick={() => onSendReminder(rsvp.id)}
+                                  className="flex-1 bg-gold/10 text-gold px-4 py-2 rounded-lg hover:bg-gold/20 transition-all flex items-center justify-center gap-2 text-xs font-bold"
+                                >
+                                  <i className="fa-solid fa-bell"></i> Remind
+                                </button>
+                                <button
+                                  onClick={() => onDeleteRSVP(rsvp.id)}
+                                  className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-all flex items-center justify-center gap-2 text-xs font-bold"
+                                >
+                                  <i className="fa-solid fa-trash-can"></i> Delete
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className={`rounded-xl p-12 text-center transition-colors ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
+                            <i className="fa-solid fa-users-slash text-4xl text-gray-300 mb-4"></i>
+                            <p className="text-gray-400 italic">
+                              {searchTerm || statusFilter !== 'all' ? 'No guests match your filters' : 'No responses recorded yet.'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="mt-6 text-xs text-gray-400 text-center">
                       Showing {filteredGuests.length} of {rsvps.length} total guests
                     </div>
-                  </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
 
-              {activeTab === 'notes' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-fadeIn">
-                  <div className="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-gray-100">
-                    <SectionHeader icon="fa-list-check" title="Planning Checklist" description="Manage tasks with completion status." />
-                    <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-8">
-                      <input value={newChecklistItem} onChange={e => setNewChecklistItem(e.target.value)} placeholder="Add a new task..." className="flex-1 border border-gray-200 p-4 rounded-xl outline-none focus:border-gold bg-gray-50 transition-colors text-sm" />
-                      <button onClick={addChecklistItem} className="w-full sm:w-auto bg-gold text-white px-8 py-4 rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-gold/20 transition-all">Add Task</button>
-                    </div>
-                    <div className="space-y-4">
-                      {safeContent.checklist.map(item => (
-                        <div
-                          key={item.id}
-                          className={`flex items-center justify-between p-4 md:p-5 rounded-2xl border-2 transition-all duration-300 ${item.completed ? 'bg-green-50 border-green-100 opacity-60' : 'bg-gray-50 border-gray-50'}`}
-                        >
-                          <div className="flex items-center gap-3 md:gap-4 cursor-pointer" onClick={() => toggleChecklistItem(item.id)}>
-                            <button className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${item.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white hover:border-gold'}`}>
-                              {item.completed && <i className="fa-solid fa-check text-[8px] md:text-[10px]"></i>}
-                            </button>
-                            <span className={`text-xs md:text-sm transition-all select-none ${item.completed ? 'line-through text-gray-400 italic' : 'text-gray-700 font-medium'}`}>{item.text}</span>
-                          </div>
-                          <button onClick={() => removeChecklistItem(item.id)} className="text-gray-300 hover:text-red-500 transition-colors p-2"><i className="fa-solid fa-xmark"></i></button>
-                        </div>
-                      ))}
-                      {safeContent.checklist.length === 0 && <p className="text-center text-gray-300 italic py-10">No items in your checklist.</p>}
-                    </div>
-                  </div>
-
-
-                  <div className="space-y-6 md:space-y-8">
-                    <div className="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-gray-100">
-                      <SectionHeader icon="fa-pen-fancy" title="Meeting Notes" description="Keep track of conversations with vendors." />
-                      <textarea rows={5} value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Type notes here..." className="w-full border border-gray-200 p-4 md:p-5 rounded-2xl bg-gray-50 focus:bg-white focus:border-gold outline-none transition-all mb-4 md:mb-6 resize-none text-sm leading-relaxed" />
-                      <button onClick={() => { if (newNote.trim()) { onAddNote(newNote); setNewNote(''); } }} className="w-full bg-gold text-white py-4 md:py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-gold/20 transition-all hover:bg-gold/90">Store Note</button>
-                    </div>
-                    <div className="space-y-6">
-                      {notes.map(note => (
-                        <div key={note.id} className="bg-white p-8 rounded-3xl border border-gray-50 relative group">
-                          <button onClick={() => onDeleteNote(note.id)} className="absolute top-6 right-6 text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i className="fa-solid fa-trash-can"></i></button>
-                          <div className="text-gold text-[10px] font-black uppercase mb-4 tracking-widest">{note.date}</div>
-                          <div className="text-gray-600 italic font-body whitespace-pre-wrap leading-relaxed">"{note.content}"</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'guestbook' && (
-                <div className="animate-fadeIn">
-                  <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 mb-10">
-                    <SectionHeader icon="fa-book-open" title="Guestbook Entries" description="Manage public messages from your guests." />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {guestbookEntries.map(entry => (
-                        <div key={entry.id} className="p-6 border border-gray-100 rounded-2xl relative group bg-gray-50 hover:bg-white transition-all shadow-sm">
-                          <button
-                            onClick={() => onDeleteGuestbookEntry(entry.id)}
-                            className="absolute top-4 right-4 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                {activeTab === 'notes' && (
+                  <motion.div
+                    key="notes-tab"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-10"
+                  >
+                    <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} p-6 md:p-10 rounded-3xl shadow-sm border transition-colors duration-300`}>
+                      <SectionHeader icon="fa-list-check" title="Planning Checklist" description="Manage tasks with completion status." isDarkMode={isDarkMode} />
+                      <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-8">
+                        <input
+                          value={newChecklistItem}
+                          onChange={e => setNewChecklistItem(e.target.value)}
+                          placeholder="Add a new task..."
+                          className={`flex-1 border p-4 rounded-xl outline-none transition-all text-sm ${isDarkMode
+                            ? 'bg-black/20 border-white/10 text-white focus:border-gold'
+                            : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-gold'}`}
+                        />
+                        <button onClick={addChecklistItem} className="w-full sm:w-auto bg-gold text-white px-8 py-4 rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-gold/20 transition-all">Add Task</button>
+                      </div>
+                      <div className="space-y-4">
+                        {safeContent.checklist.map(item => (
+                          <div
+                            key={item.id}
+                            className={`flex items-center justify-between p-4 md:p-5 rounded-2xl border-2 transition-all duration-300 ${item.completed
+                              ? isDarkMode ? 'bg-green-500/10 border-green-500/20 opacity-60' : 'bg-green-50 border-green-100 opacity-60'
+                              : isDarkMode ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-50'
+                              }`}
                           >
-                            <i className="fa-solid fa-trash-can"></i>
-                          </button>
-                          <div className="flex justify-between items-start mb-4">
-                            <h4 className="font-serif text-gold text-lg">{entry.name}</h4>
-                            <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">{new Date(entry.date).toLocaleDateString()}</span>
+                            <div className="flex items-center gap-3 md:gap-4 cursor-pointer" onClick={() => toggleChecklistItem(item.id)}>
+                              <button className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${item.completed ? 'bg-green-500 border-green-500 text-white' : isDarkMode ? 'border-gray-600 bg-black/20 hover:border-gold' : 'border-gray-300 bg-white hover:border-gold'}`}>
+                                {item.completed && <i className="fa-solid fa-check text-[8px] md:text-[10px]"></i>}
+                              </button>
+                              <span className={`text-xs md:text-sm transition-all select-none ${item.completed ? 'line-through text-gray-400 italic' : isDarkMode ? 'text-white font-medium' : 'text-gray-700 font-medium'}`}>{item.text}</span>
+                            </div>
+                            <button onClick={() => removeChecklistItem(item.id)} className="text-gray-300 hover:text-red-500 transition-colors p-2"><i className="fa-solid fa-xmark"></i></button>
                           </div>
-                          <p className="text-gray-600 text-sm italic font-body">"{entry.message}"</p>
-                        </div>
-                      ))}
-                      {guestbookEntries.length === 0 && (
-                        <div className="col-span-full py-20 text-center text-gray-300 italic">No guestbook entries yet.</div>
-                      )}
+                        ))}
+                        {safeContent.checklist.length === 0 && <p className={`text-center italic py-10 ${isDarkMode ? 'text-gray-600' : 'text-gray-300'}`}>No items in your checklist.</p>}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              )}
+
+                    <div className="space-y-6 md:space-y-8">
+                      <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} p-6 md:p-10 rounded-3xl shadow-sm border transition-colors duration-300`}>
+                        <SectionHeader icon="fa-pen-fancy" title="Meeting Notes" description="Keep track of conversations with vendors." isDarkMode={isDarkMode} />
+                        <textarea
+                          rows={5}
+                          value={newNote}
+                          onChange={e => setNewNote(e.target.value)}
+                          placeholder="Type notes here..."
+                          className={`w-full border p-4 md:p-5 rounded-2xl outline-none transition-all mb-4 md:mb-6 resize-none text-sm leading-relaxed ${isDarkMode
+                            ? 'bg-black/20 border-white/10 text-white focus:border-gold'
+                            : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-gold'}`}
+                        />
+                        <button onClick={() => { if (newNote.trim()) { onAddNote(newNote); setNewNote(''); } }} className="w-full bg-gold text-white py-4 md:py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-gold/20 transition-all hover:bg-gold/90">Store Note</button>
+                      </div>
+                      <div className="space-y-6">
+                        {notes.map(note => (
+                          <div key={note.id} className={`p-8 rounded-3xl border relative group transition-colors ${isDarkMode ? 'bg-white/5 border-white/5' : 'bg-white border-gray-50'}`}>
+                            <button onClick={() => onDeleteNote(note.id)} className="absolute top-6 right-6 text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i className="fa-solid fa-trash-can"></i></button>
+                            <div className="text-gold text-[10px] font-black uppercase mb-4 tracking-widest">{note.date}</div>
+                            <div className={`italic font-body whitespace-pre-wrap leading-relaxed ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>"{note.content}"</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeTab === 'guestbook' && (
+                  <motion.div
+                    key="guestbook-tab"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-10"
+                  >
+                    <div className={`${isDarkMode ? 'bg-black/40 border-white/5' : 'bg-white border-gray-100'} p-6 md:p-10 rounded-3xl shadow-sm border transition-colors duration-300 mb-10`}>
+                      <SectionHeader icon="fa-book-open" title="Guestbook Entries" description="Manage public messages from your guests." isDarkMode={isDarkMode} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {guestbookEntries.map(entry => (
+                          <div key={entry.id} className={`p-6 border rounded-2xl relative group transition-all shadow-sm ${isDarkMode ? 'bg-black/20 border-white/5 hover:bg-black/30' : 'bg-gray-50 border-gray-100 hover:bg-white'}`}>
+                            <button
+                              onClick={() => onDeleteGuestbookEntry(entry.id)}
+                              className="absolute top-4 right-4 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                            >
+                              <i className="fa-solid fa-trash-can"></i>
+                            </button>
+                            <div className="flex justify-between items-start mb-4">
+                              <h4 className="font-serif text-gold text-lg">{entry.name}</h4>
+                              <span className={`text-[9px] uppercase tracking-widest font-bold ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(entry.date).toLocaleDateString()}</span>
+                            </div>
+                            <p className={`text-sm italic font-body ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>"{entry.message}"</p>
+                          </div>
+                        ))}
+                        {guestbookEntries.length === 0 && (
+                          <div className={`col-span-full py-20 text-center italic ${isDarkMode ? 'text-gray-600' : 'text-gray-300'}`}>No guestbook entries yet.</div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
 
         {/* Mobile Bottom Tab Bar */}
-        <div className="md:hidden bg-white border-t border-gray-100 flex justify-around items-center py-4 px-2 safe-bottom z-[60] shadow-[0_-10px_30px_rgba(0,0,0,0.05)] shrink-0">
-          {[
-            { id: 'content', label: 'Core', icon: 'fa-pen-nib' },
-            { id: 'lists', label: 'Lists', icon: 'fa-list-check' },
-            { id: 'guests', label: 'Guests', icon: 'fa-users-gear' },
-            { id: 'guestbook', label: 'Book', icon: 'fa-book-open' },
-            { id: 'notes', label: 'Notes', icon: 'fa-flask' },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex flex-col items-center gap-1.5 transition-all w-full ${activeTab === tab.id ? 'text-gold' : 'text-gray-400'}`}
-            >
-              <div className={`p-2 rounded-xl transition-all ${activeTab === tab.id ? 'bg-gold/10' : ''}`}>
-                <i className={`fa-solid ${tab.icon} text-lg`}></i>
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-widest">{tab.label}</span>
-            </button>
-          ))}
+        <div className={`md:hidden border-t py-2 px-2 safe-bottom z-[60] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] shrink-0 transition-colors relative ${isDarkMode ? 'bg-[#1a1a1a] border-white/5' : 'bg-white border-gray-100'}`}>
+          <div className="flex justify-around items-center relative">
+            {/* Animated Background Indicator */}
+            <motion.div
+              className="absolute h-1 top-[-8px] bg-gold rounded-full shadow-[0_0_10px_rgba(212,175,55,0.4)]"
+              initial={false}
+              animate={{
+                left: `${(['content', 'lists', 'guests', 'guestbook', 'notes'].indexOf(activeTab) * 20) + 4}%`,
+                width: '12%'
+              }}
+              transition={{ type: "spring", stiffness: 400, damping: 35 }}
+            />
+
+            {[
+              { id: 'content', label: 'Core', icon: 'fa-pen-nib' },
+              { id: 'lists', label: 'Lists', icon: 'fa-list-check' },
+              { id: 'guests', label: 'Guests', icon: 'fa-users-gear' },
+              { id: 'guestbook', label: 'Book', icon: 'fa-book-open' },
+              { id: 'notes', label: 'Notes', icon: 'fa-flask' },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex flex-col items-center gap-1 transition-all w-full relative group py-2 ${activeTab === tab.id ? 'text-gold' : isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}
+              >
+                <motion.div
+                  className={`p-2 rounded-xl transition-all ${activeTab === tab.id ? 'bg-gold/10' : 'group-hover:bg-gray-100/50 group-active:scale-90'}`}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <i className={`fa-solid ${tab.icon} ${activeTab === tab.id ? 'text-lg' : 'text-base opacity-70'}`}></i>
+                </motion.div>
+                <span className={`text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'opacity-100 translate-y-0' : 'opacity-40 translate-y-0.5'}`}>
+                  {tab.label}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

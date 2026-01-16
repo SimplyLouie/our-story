@@ -8,10 +8,11 @@ interface GuestDashboardProps {
   rsvps: RSVP[];
   initialName?: string;
   onClose: () => void;
+  onUpdateRSVP: (rsvp: RSVP) => void;
   isDarkMode: boolean;
 }
 
-const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initialName, onClose, isDarkMode }) => {
+const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initialName, onClose, onUpdateRSVP, isDarkMode }) => {
   const [searchTerm, setSearchTerm] = useState(initialName || '');
   const [foundRSVP, setFoundRSVP] = useState<RSVP | null>(null);
   const [showMapModal, setShowMapModal] = useState(false);
@@ -87,6 +88,31 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
   };
 
   const venues = content.venues || [];
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+
+  const handleStatusUpdate = async (newStatus: RSVPStatus) => {
+    if (!foundRSVP) return;
+    setIsUpdating(true);
+
+    const updatedRSVP = {
+      ...foundRSVP,
+      status: newStatus,
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+      await onUpdateRSVP(updatedRSVP);
+      setFoundRSVP(updatedRSVP);
+      setUpdateSuccess(true);
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (error) {
+      console.error("Failed to update RSVP:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
     <motion.div
@@ -98,20 +124,20 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        className={`w-full max-w-2xl rounded-3xl overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.6)] border ${isDarkMode ? 'bg-[#1a1a1a] border-white/5' : 'bg-white border-gold/10'}`}
+        className={`w-full max-w-2xl rounded-3xl overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.6)] border flex flex-col max-h-[95vh] md:max-h-[90vh] ${isDarkMode ? 'bg-[#1a1a1a] border-white/5' : 'bg-white border-gold/10'}`}
       >
-        <div className="bg-neutral-900 px-6 py-10 md:p-12 text-white relative">
+        <div className={`${isDarkMode ? 'bg-black/40' : 'bg-neutral-900'} px-6 py-8 md:p-12 text-white relative shrink-0`}>
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-gold via-[#f7e7ce] to-gold"></div>
           <button onClick={onClose} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-gold hover:bg-white/10 transition-all z-10">
             <i className="fa-solid fa-xmark text-xl"></i>
           </button>
-
+          <br />
           <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
             <div className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/20 flex items-center justify-center text-gold shadow-inner">
               <i className="fa-solid fa-unlock-keyhole text-2xl"></i>
             </div>
             <div>
-              <h2 className="text-3xl md:text-4xl font-serif mb-1 uppercase tracking-tight">Guest Portal</h2>
+              <h2 className="text-2xl md:text-4xl font-serif mb-1 uppercase tracking-tight">Guest Portal</h2>
               <div className="flex items-center justify-center md:justify-start gap-3">
                 <span className="h-px w-6 bg-gold/50"></span>
                 <p className="text-gold uppercase tracking-[0.5em] text-[10px] font-black">Private Invitation</p>
@@ -121,7 +147,7 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
           </div>
         </div>
 
-        <div className="p-6 md:p-12">
+        <div className="p-6 md:p-12 overflow-y-auto custom-scrollbar flex-1">
           {!foundRSVP ? (
             <div className="text-center py-6 md:py-10">
               <h3 className={`text-2xl font-serif mb-4 tracking-wide ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Verify Invitation</h3>
@@ -241,25 +267,70 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
                     </div>
                     <h4 className="font-black text-[10px] uppercase tracking-[0.4em] text-gold mb-6 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-gold"></span>
-                      Ceremony Note
+                      Couple's Note
                     </h4>
                     <p className={`text-base italic leading-relaxed font-serif relative z-10 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {foundRSVP.status === RSVPStatus.UNDECIDED
-                        ? "Your celebration status is still pending. We've reserved a tentative place for you and cannot wait to celebrate together."
+                        ? "Your attendance status is still pending. We've reserved a tentative place for you and cannot wait to celebrate together."
                         : foundRSVP.status === RSVPStatus.ATTENDING
-                          ? "We are delighted to confirm your presence. Our finest arrangements are being tailored for your arrival at the estate."
+                          ? "We are delighted to confirm your presence. Our finest arrangements are being tailored for your arrival at the venue."
                           : "We have received your regrets. While your presence will be missed, we remain deeply grateful for your warmth and well wishes."}
                     </p>
                   </div>
+
+                  {foundRSVP.status === RSVPStatus.UNDECIDED && (
+                    <div className="space-y-4">
+                      <p className={`text-[10px] uppercase font-black text-center tracking-[0.2em] mb-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Ready to decide?</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          disabled={isUpdating}
+                          onClick={() => handleStatusUpdate(RSVPStatus.ATTENDING)}
+                          className={`py-4 px-2 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 ${isDarkMode
+                            ? 'bg-green-600/20 text-green-400 border border-green-500/20 hover:bg-green-600/30'
+                            : 'bg-green-50 text-green-700 border border-green-100 hover:bg-green-100'
+                            }`}
+                        >
+                          <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shrink-0 ${isDarkMode ? 'bg-green-400/20' : 'bg-green-600/10'}`}>
+                            {isUpdating ? <i className="fa-solid fa-spinner fa-spin text-[10px]"></i> : <i className="fa-solid fa-check text-[10px]"></i>}
+                          </div>
+                          <span>I'll Be There</span>
+                        </button>
+                        <button
+                          disabled={isUpdating}
+                          onClick={() => handleStatusUpdate(RSVPStatus.NOT_ATTENDING)}
+                          className={`py-4 px-2 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-3 ${isDarkMode
+                            ? 'bg-red-600/20 text-red-400 border border-red-500/20 hover:bg-red-600/30'
+                            : 'bg-red-50 text-red-700 border border-red-100 hover:bg-red-100'
+                            }`}
+                        >
+                          <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shrink-0 ${isDarkMode ? 'bg-red-400/20' : 'bg-red-600/10'}`}>
+                            {isUpdating ? <i className="fa-solid fa-spinner fa-spin text-[10px]"></i> : <i className="fa-solid fa-xmark text-[10px]"></i>}
+                          </div>
+                          <span>Declined</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {updateSuccess && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="bg-green-500 text-white text-[10px] font-black uppercase tracking-widest py-3 rounded-lg text-center shadow-lg"
+                    >
+                      <i className="fa-solid fa-circle-check mr-2"></i>
+                      RSVP Updated Successfully
+                    </motion.div>
+                  )}
 
                   {foundRSVP.status === RSVPStatus.ATTENDING && (
                     <a
                       href={getCalendarLink()}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full bg-neutral-900 text-white py-5 rounded-2xl uppercase tracking-[0.4em] text-[11px] font-black hover:bg-black transition-all text-center flex items-center justify-center gap-4 shadow-xl active:scale-95 group"
+                      className={`w-full py-5 rounded-2xl uppercase tracking-[0.4em] text-[11px] font-black transition-all text-center flex items-center justify-center gap-4 shadow-xl active:scale-95 group bg-gold text-white hover:bg-[#b8962d]`}
                     >
-                      <i className="fa-solid fa-calendar-circle-plus text-gold text-lg group-hover:scale-125 transition-transform"></i>
+                      <i className="fa-solid fa-calendar-circle-plus text-lg group-hover:scale-125 transition-transform"></i>
                       Add to Calendar
                     </a>
                   )}
@@ -290,12 +361,12 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl"
+            className={`w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl ${isDarkMode ? 'bg-[#1a1a1a]' : 'bg-white'}`}
           >
-            <div className="bg-neutral-900 p-6 flex items-center justify-between">
+            <div className={`${isDarkMode ? 'bg-black/40' : 'bg-neutral-900'} p-6 flex items-center justify-between`}>
               <div>
                 <h3 className="text-2xl font-serif text-white mb-1">{selectedVenue.name}</h3>
-                <p className="text-gray-400 text-sm">{selectedVenue.address}</p>
+                <p className="text-white/60 text-sm">{selectedVenue.address}</p>
               </div>
               <button
                 onClick={() => setShowMapModal(false)}
@@ -316,7 +387,7 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
                 title={`Map to ${selectedVenue.name}`}
               ></iframe>
             </div>
-            <div className="p-4 bg-gray-50 flex justify-end">
+            <div className={`p-4 flex justify-end ${isDarkMode ? 'bg-black/20' : 'bg-gray-50'}`}>
               <a
                 href={selectedVenue.mapUrl}
                 target="_blank"

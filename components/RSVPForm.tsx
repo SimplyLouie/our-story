@@ -81,7 +81,7 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
               <span className="text-gold text-[10px] uppercase tracking-[0.6em] font-black mb-4 block font-body">The Union of Souls</span>
               <h2 className={`text-4xl md:text-5xl font-serif mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Reservation</h2>
               <div className="w-12 h-px bg-gold/30 mx-auto mb-4"></div>
-              <p className="text-gray-400 text-[10px] uppercase tracking-widest italic font-body">Kindly respond by July 15, 2025</p>
+              <p className="text-gray-400 text-[10px] uppercase tracking-widest italic font-body">Kindly respond by April 15, 2026</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-10">
@@ -93,7 +93,7 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
                   value={formData.name}
                   onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   className={`w-full border-b-2 py-3 focus:border-gold outline-none transition-all text-lg font-serif bg-transparent placeholder:text-gray-500 ${isDarkMode ? 'border-gray-700 text-white' : 'border-gray-100'}`}
-                  placeholder="e.g. Julianna Vancer"
+                  placeholder="e.g. Florie Mae Faciol"
                 />
               </div>
 

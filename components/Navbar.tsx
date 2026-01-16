@@ -9,9 +9,10 @@ interface NavbarProps {
   onToggleMusic: () => void;
   isDarkMode: boolean;
   onToggleTheme: () => void;
+  hidden?: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onAdminClick, onGuestDashboardClick, isMuted, onToggleMusic, isDarkMode, onToggleTheme }) => {
+const Navbar: React.FC<NavbarProps> = ({ onAdminClick, onGuestDashboardClick, isMuted, onToggleMusic, isDarkMode, onToggleTheme, hidden }) => {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
@@ -76,7 +77,7 @@ const Navbar: React.FC<NavbarProps> = ({ onAdminClick, onGuestDashboardClick, is
   return (
     <>
       {/* Desktop Navigation - Hidden on Mobile */}
-      <nav className={`fixed top-0 left-0 right-0 z-[60] hidden lg:block transition-all duration-500 ${scrolled ? (isDarkMode ? 'bg-[#1a1a1a]/80' : 'bg-white/80') + ' backdrop-blur-md shadow-lg py-4' : 'bg-transparent py-8'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-[60] hidden lg:block transition-all duration-500 ${hidden ? 'opacity-0 pointer-events-none translate-y-[-100%]' : 'opacity-100'} ${scrolled ? (isDarkMode ? 'bg-[#1a1a1a]/80' : 'bg-white/80') + ' backdrop-blur-md shadow-lg py-4' : 'bg-transparent py-8'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           <div className={`font-serif text-3xl tracking-[0.2em] transition-all duration-500 cursor-default relative z-[70] ${scrolled ? 'text-gold' : 'text-white'}`}>
             L <span className="font-cursive text-4xl text-gold mx-2">&</span> F
@@ -146,7 +147,7 @@ const Navbar: React.FC<NavbarProps> = ({ onAdminClick, onGuestDashboardClick, is
       </nav>
 
       {/* Mobile Floating Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md">
+      <div className={`lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md transition-all duration-500 ${hidden ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
         <motion.div
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -198,7 +199,7 @@ const Navbar: React.FC<NavbarProps> = ({ onAdminClick, onGuestDashboardClick, is
       </div>
 
       {/* Top Banner for Mobile (Logo & Quick Actions) */}
-      <div className={`lg:hidden fixed top-0 left-0 right-0 z-[60] p-4 flex justify-between items-center transition-all ${scrolled ? (isDarkMode ? 'bg-[#1a1a1a]/80' : 'bg-white/80') + ' backdrop-blur-md shadow-md' : 'bg-transparent'}`}>
+      <div className={`lg:hidden fixed top-0 left-0 right-0 z-[60] p-4 flex justify-between items-center transition-all duration-500 ${hidden ? 'opacity-0 pointer-events-none translate-y-[-100%]' : 'opacity-100'} ${scrolled ? (isDarkMode ? 'bg-[#1a1a1a]/80' : 'bg-white/80') + ' backdrop-blur-md shadow-md' : 'bg-transparent'}`}>
         <div className={`font-serif text-xl tracking-[0.2em] ${scrolled ? 'text-gold' : 'text-white'}`}>
           L <span className="font-cursive text-2xl text-gold">&</span> F
         </div>

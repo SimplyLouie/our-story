@@ -9,6 +9,7 @@ import Sections from './components/Sections';
 import RSVPForm from './components/RSVPForm';
 import AdminPanel from './components/AdminPanel';
 import GuestDashboard from './components/GuestDashboard';
+import FloatingParticles from './components/FloatingParticles';
 import Footer from './components/Footer';
 import { dbService, authService } from './firebase';
 import EmailService from './components/EmailService';
@@ -133,7 +134,10 @@ const App: React.FC = () => {
   };
 
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
+    // Use requestAnimationFrame to prevent UI freeze on mobile
+    requestAnimationFrame(() => {
+      setIsDarkMode(prev => !prev);
+    });
   };
 
   const handleAddRSVP = (newRSVP: RSVP) => {
@@ -149,6 +153,11 @@ const App: React.FC = () => {
       setInitialGuestName(newRSVP.name);
       setShowGuestDashboard(true);
     }, 2500);
+  };
+
+  const handleUpdateRSVP = (updatedRSVP: RSVP) => {
+    setRsvps(prev => prev.map(r => r.id === updatedRSVP.id ? updatedRSVP : r));
+    return dbService.saveRSVP(updatedRSVP);
   };
 
   const handleUpdateContent = (newContent: SiteContent) => {
@@ -249,7 +258,8 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`relative min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-[#1a1a1a] text-white/90' : 'bg-[#fcfaf7] text-gray-800'}`}>
+    <div className={`min-height-screen transition-colors duration-700 relative overflow-hidden ${isDarkMode ? 'bg-[#1a1a1a] text-white/90' : 'bg-[#fcfaf7] text-gray-800'}`}>
+      <FloatingParticles count={25} type="petals" />
       <audio ref={audioRef} loop preload="auto" key={content.musicUrl}>
         <source src={content.musicUrl} type="audio/mpeg" />
       </audio>
@@ -268,6 +278,7 @@ const App: React.FC = () => {
           onToggleMusic={toggleMusic}
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
+          hidden={isAdmin || showGuestDashboard || showAdminLogin}
         />
         <Hero content={content} />
 
@@ -307,6 +318,7 @@ const App: React.FC = () => {
               rsvps={rsvps}
               initialName={initialGuestName}
               onClose={() => setShowGuestDashboard(false)}
+              onUpdateRSVP={handleUpdateRSVP}
               isDarkMode={isDarkMode}
             />
           )}
@@ -407,6 +419,7 @@ const App: React.FC = () => {
                   guestbookEntries={guestbookEntries}
                   onDeleteGuestbookEntry={(id) => dbService.deleteGuestbookEntry(id)}
                   onClose={handleLogout}
+                  isDarkMode={isDarkMode}
                 />
               </motion.div>
             </motion.div>

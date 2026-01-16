@@ -19,14 +19,14 @@ export const INITIAL_CONTENT: SiteContent = {
   countdownDate: "2026-07-04T15:00:00",
   venues: [
     {
-      name: "Archdiocesan Shrine of St. Thérèse",
-      address: "Lahug, Cebu City",
-      mapUrl: "https://maps.app.goo.gl/oh79QXzodbNxjsQD8"
+      name: "Archdiocesan Shrine of St. Thérèse of the Child Jesus",
+      address: "Gorordo Ave, Lahug, Cebu City",
+      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5218.1810181073815!2d123.89791887503557!3d10.331064989791887!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33a999269b2146d5%3A0x462d30e860ab63f2!2sArchdiocesan%20Shrine%20of%20St.%20Th%C3%A9r%C3%A8se%20of%20the%20Child%20Jesus!5e1!3m2!1sen!2sph!4v1768570025254!5m2!1sen!2sph"
     },
     {
-      name: "Chateau de Busay Inn",
+      name: "Chateau de Busay Inn & Restaurant",
       address: "Lower Busay, Cebu City",
-      mapUrl: "https://maps.app.goo.gl/1vFQvK9dhhQuRG728"
+      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5217.661214066814!2d123.87666848669632!3d10.362327840313117!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33a99f4c07b55c0f%3A0x990d6bedbcf8c0c7!2sChateau%20de%20Busay%20Inn%20%26%20Restaurant!5e1!3m2!1sen!2sph!4v1768572532024!5m2!1sen!2sph"
     }
   ],
   heroTagline: "Together with their families, invite you to celebrate the union of their souls in an evening of timeless elegance.",
