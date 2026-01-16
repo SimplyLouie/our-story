@@ -9,7 +9,6 @@ interface NavbarProps {
   onToggleMusic: () => void;
   isDarkMode: boolean;
   onToggleTheme: () => void;
-  onBack?: () => void;
   hidden?: boolean;
 }
 
@@ -20,7 +19,6 @@ const Navbar: React.FC<NavbarProps> = ({
   onToggleMusic,
   isDarkMode,
   onToggleTheme,
-  onBack,
   hidden
 }) => {
   const [scrolled, setScrolled] = useState(false);
@@ -146,76 +144,64 @@ const Navbar: React.FC<NavbarProps> = ({
       </nav>
 
       {/* Mobile Floating Bottom Navigation */}
-      <div className={`lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-md transition-all duration-500 ${(hidden && !onBack) ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
+      <div className={`lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[1000] w-[92%] max-w-md transition-all duration-500 ${hidden ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
         <motion.div
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           className={`relative ${isDarkMode ? 'bg-[#1a1a1a]/80' : 'bg-white/80'} backdrop-blur-2xl border ${isDarkMode ? 'border-white/10' : 'border-gold/15'} rounded-[2.5rem] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-between overflow-hidden`}
         >
-          {/* Back Button for Portals in Bottom Nav */}
-          {onBack ? (
-            <motion.button
-              onClick={onBack}
-              whileTap={{ scale: 0.95 }}
-              className="flex-grow flex items-center justify-center gap-3 py-3 text-gold font-black uppercase tracking-[0.2em] text-[10px]"
-            >
-              <i className="fa-solid fa-arrow-left-long"></i>
-              Back to Website
-            </motion.button>
-          ) : (
-            <>
-              {/* Animated Active Indicator Pill */}
-              <AnimatePresence>
-                {['story', 'timeline', 'gallery', 'guestbook', 'rsvp'].includes(activeSection) && (
-                  <motion.div
-                    layoutId="activePill"
-                    className="absolute h-12 rounded-2xl bg-gold/10 border border-gold/20 z-0"
-                    initial={false}
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    style={{
-                      width: 'calc(100% / 6 - 8px)',
-                      left: `calc((${['story', 'timeline', 'gallery', 'guestbook', 'rsvp'].indexOf(activeSection)} * (100% / 6)) + 4px)`
-                    }}
-                  />
-                )}
-              </AnimatePresence>
+          <>
+            {/* Animated Active Indicator Pill */}
+            <AnimatePresence>
+              {['story', 'timeline', 'gallery', 'guestbook', 'rsvp'].includes(activeSection) && (
+                <motion.div
+                  layoutId="activePill"
+                  className="absolute h-12 rounded-2xl bg-gold/10 border border-gold/20 z-0"
+                  initial={false}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  style={{
+                    width: 'calc(100% / 6 - 8px)',
+                    left: `calc((${['story', 'timeline', 'gallery', 'guestbook', 'rsvp'].indexOf(activeSection)} * (100% / 6)) + 4px)`
+                  }}
+                />
+              )}
+            </AnimatePresence>
 
-              <div className="flex-grow flex items-center justify-between px-1">
-                {[
-                  { id: 'story', icon: 'fa-book-open', label: 'Story' },
-                  { id: 'timeline', icon: 'fa-clock', label: 'Time' },
-                  { id: 'gallery', icon: 'fa-images', label: 'Gallery' },
-                  { id: 'guestbook', icon: 'fa-pen-fancy', label: 'Signed' },
-                ].map((item) => (
-                  <motion.a
-                    key={item.id}
-                    href={`#${item.id}`}
-                    whileTap={{ scale: 0.9 }}
-                    className={`relative z-10 flex flex-col items-center justify-center w-full py-2.5 transition-all duration-300 ${activeSection === item.id
-                      ? 'text-gold'
-                      : (isDarkMode ? 'text-gray-400' : 'text-gray-500')
-                      }`}
-                  >
-                    <i className={`fa-solid ${item.icon} text-base mb-1.5`} />
-                    <span className="text-[8px] font-black uppercase tracking-[0.1em]">{item.label}</span>
-                  </motion.a>
-                ))}
-
-                {/* RSVP Aligned with Story/Time */}
+            <div className="flex-grow flex items-center justify-between px-1">
+              {[
+                { id: 'story', icon: 'fa-book-open', label: 'Story' },
+                { id: 'timeline', icon: 'fa-clock', label: 'Time' },
+                { id: 'gallery', icon: 'fa-images', label: 'Gallery' },
+                { id: 'guestbook', icon: 'fa-pen-fancy', label: 'Signed' },
+              ].map((item) => (
                 <motion.a
-                  href="#rsvp"
+                  key={item.id}
+                  href={`#${item.id}`}
                   whileTap={{ scale: 0.9 }}
-                  className={`relative z-10 flex flex-col items-center justify-center w-full py-2.5 transition-all duration-300 ${activeSection === 'rsvp'
+                  className={`relative z-10 flex flex-col items-center justify-center w-full py-2.5 transition-all duration-300 ${activeSection === item.id
                     ? 'text-gold'
                     : (isDarkMode ? 'text-gray-400' : 'text-gray-500')
                     }`}
                 >
-                  <i className="fa-solid fa-paper-plane text-base mb-1.5" />
-                  <span className="text-[8px] font-black uppercase tracking-[0.1em]">RSVP</span>
+                  <i className={`fa-solid ${item.icon} text-base mb-1.5`} />
+                  <span className="text-[8px] font-black uppercase tracking-[0.1em]">{item.label}</span>
                 </motion.a>
-              </div>
-            </>
-          )}
+              ))}
+
+              {/* RSVP Aligned with Story/Time */}
+              <motion.a
+                href="#rsvp"
+                whileTap={{ scale: 0.9 }}
+                className={`relative z-10 flex flex-col items-center justify-center w-full py-2.5 transition-all duration-300 ${activeSection === 'rsvp'
+                  ? 'text-gold'
+                  : (isDarkMode ? 'text-gray-400' : 'text-gray-500')
+                  }`}
+              >
+                <i className="fa-solid fa-paper-plane text-base mb-1.5" />
+                <span className="text-[8px] font-black uppercase tracking-[0.1em]">RSVP</span>
+              </motion.a>
+            </div>
+          </>
 
           {/* Menu Button Aligned with Story/Time */}
           <motion.button
@@ -235,22 +221,11 @@ const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Top Banner for Mobile (Logo & Quick Actions) */}
-      <div className={`lg:hidden fixed top-0 left-0 right-0 z-[100] px-6 py-3 flex justify-between items-center transition-all duration-500 ${(hidden && !onBack) ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'} ${scrolled || onBack ? (isDarkMode ? 'bg-[#1a1a1a]/85' : 'bg-white/85') + ' backdrop-blur-lg border-b border-white/5 shadow-md' : 'bg-transparent'}`}>
-        <div className={`font-serif text-lg tracking-[0.25em] transition-colors duration-500 ${scrolled || onBack ? 'text-gold' : 'text-white'}`}>
+      <div className={`lg:hidden fixed top-0 left-0 right-0 z-[1000] px-6 py-3 flex justify-between items-center transition-all duration-500 ${hidden ? 'opacity-0 pointer-events-none -translate-y-full' : 'opacity-100'} ${scrolled ? (isDarkMode ? 'bg-[#1a1a1a]/85' : 'bg-white/85') + ' backdrop-blur-lg border-b border-white/5 shadow-md' : 'bg-transparent'}`}>
+        <div className={`font-serif text-lg tracking-[0.25em] transition-colors duration-500 ${scrolled ? 'text-gold' : 'text-white'}`}>
           L <span className="font-cursive text-2xl text-gold mx-0.5">&</span> F
         </div>
         <div className="flex items-center gap-2">
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="bg-gold text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] shadow-lg shadow-gold/20 active:scale-95 transition-transform"
-            >
-              <span className="flex items-center gap-2">
-                <i className="fa-solid fa-arrow-left"></i>
-                Back
-              </span>
-            </button>
-          )}
         </div>
       </div>
 
