@@ -180,10 +180,8 @@ const App: React.FC = () => {
   };
 
   const handleDeleteRSVP = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this guest? This cannot be undone.")) {
-      setRsvps(prev => prev.filter(r => r.id !== id));
-      dbService.deleteRSVP(id);
-    }
+    setRsvps(prev => prev.filter(r => r.id !== id));
+    dbService.deleteRSVP(id);
   };
 
   const handleAddNote = (content: string) => {

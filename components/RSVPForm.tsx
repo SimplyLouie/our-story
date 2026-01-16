@@ -188,6 +188,18 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
                 </motion.div>
               )}
 
+              {formData.status === RSVPStatus.UNDECIDED && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`p-6 border-l-4 border-gold/30 rounded-sm italic text-gray-400 text-sm font-body ${isDarkMode ? 'bg-black/20' : 'bg-gray-50'}`}
+                >
+                  <p className="leading-relaxed">
+                    "Take your time! We'll reach out via email to follow up on your attendance status later. 🙏"
+                  </p>
+                </motion.div>
+              )}
+
               <button
                 type="submit"
                 className="w-full py-6 bg-gold text-white uppercase tracking-[0.5em] font-black hover:bg-[#b8962d] shadow-[0_20px_40px_rgba(212,175,55,0.3)] transition-all transform hover:-translate-y-1 rounded-sm text-xs flex items-center justify-center gap-4 font-body"
@@ -218,7 +230,9 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
             <p className="text-gray-500 mb-10 leading-relaxed font-light italic max-w-sm mx-auto font-body">
               {formData.status === RSVPStatus.ATTENDING
                 ? "We are delighted to have you join us. Your seat in the Grand Ballroom has been reserved with honor."
-                : "We are sorry you can't make it. Your well wishes are deeply appreciated and will be shared with the couple."}
+                : formData.status === RSVPStatus.NOT_ATTENDING
+                  ? "We are sorry you can't make it. Your well wishes are deeply appreciated and will be shared with the couple."
+                  : "We've recorded your status as undecided. We'll be in touch soon to confirm your attendance!"}
             </p>
 
             <div className="flex flex-col items-center gap-6">
