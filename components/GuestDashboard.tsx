@@ -14,6 +14,8 @@ interface GuestDashboardProps {
 const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initialName, onClose, isDarkMode }) => {
   const [searchTerm, setSearchTerm] = useState(initialName || '');
   const [foundRSVP, setFoundRSVP] = useState<RSVP | null>(null);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [selectedVenue, setSelectedVenue] = useState<{ name: string; address: string; mapUrl: string } | null>(null);
 
   useEffect(() => {
     if (initialName) {
@@ -29,6 +31,46 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
     } else if (!nameInput) {
       alert("No RSVP found for that name. Have you responded yet?");
     }
+  };
+
+  const openMapModal = (venue: { name: string; address: string; mapUrl: string }) => {
+    setSelectedVenue(venue);
+    setShowMapModal(true);
+  };
+
+  // Convert short Google Maps URLs to embeddable format
+  const getEmbedMapUrl = (url: string): string => {
+    // If already an embed URL, return as-is
+    if (url.includes('/maps/embed')) {
+      return url;
+    }
+
+    // If it's a short URL (maps.app.goo.gl or goo.gl), convert to embed format
+    if (url.includes('maps.app.goo.gl') || url.includes('goo.gl')) {
+      // Extract the place name from venue for search
+      // This is a workaround since we can't directly embed short URLs
+      const searchQuery = encodeURIComponent(selectedVenue?.name || '');
+      return `https://www.google.com/maps?q=${searchQuery}&output=embed`;
+    }
+
+    // If it's a regular google.com/maps URL, convert to embed
+    if (url.includes('google.com/maps')) {
+      // Try to extract coordinates or place ID
+      const placeMatch = url.match(/place\/([^\/]+)/);
+      if (placeMatch) {
+        const place = encodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+        return `https://www.google.com/maps?q=${place}&output=embed`;
+      }
+
+      // Extract coordinates if present
+      const coordMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (coordMatch) {
+        return `https://www.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed`;
+      }
+    }
+
+    // Fallback: return original URL (will open in new tab instead)
+    return url;
   };
 
   const getCalendarLink = () => {
@@ -143,12 +185,12 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
                 <div className="space-y-6">
                   <div className="text-[11px] uppercase font-black text-gray-400 tracking-[0.4em] flex items-center gap-3">
                     <span className="w-8 h-px bg-gray-200 dark:bg-white/10"></span>
-                    Logistics
+                    Event Details
                   </div>
                   <ul className="space-y-6">
                     <li className="flex gap-5 items-center group">
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-gold shadow-sm transition-transform group-hover:scale-110 ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
-                        <i className="fa-solid fa-calendar-heart text-lg"></i>
+                        <i className="fa-solid fa-calendar-days text-lg"></i>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold mb-0.5">Wedding Date</span>
@@ -157,11 +199,11 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
                     </li>
                     <li className="flex gap-5 items-center group">
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-gold shadow-sm transition-transform group-hover:scale-110 ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
-                        <i className="fa-solid fa-clock-three text-lg"></i>
+                        <i className="fa-solid fa-clock text-lg"></i>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold mb-0.5">Ceremony Time</span>
-                        <span className={`font-serif text-lg ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{content.weddingTime} Lineup</span>
+                        <span className={`font-serif text-lg ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>{content.weddingTime}</span>
                       </div>
                     </li>
                     {venues.length > 0 ? venues.map((v, i) => (
@@ -169,12 +211,16 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
                         <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-gold shadow-sm mt-1 transition-transform group-hover:scale-110 ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                           <i className="fa-solid fa-location-dot text-lg"></i>
                         </div>
-                        <div className="flex flex-col">
+                        <div className="flex flex-col flex-1">
                           <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold mb-0.5">Location</span>
-                          <span className={`text-sm md:text-base leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <button
+                            onClick={() => openMapModal(v)}
+                            className={`text-left text-sm md:text-base leading-relaxed hover:text-gold transition-colors ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                          >
                             <strong className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{v.name}</strong><br />
                             <span className="opacity-70">{v.address}</span>
-                          </span>
+                            <i className="fa-solid fa-map-location-dot ml-2 text-xs text-gold opacity-60"></i>
+                          </button>
                         </div>
                       </li>
                     )) : (
@@ -214,7 +260,7 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
                       className="w-full bg-neutral-900 text-white py-5 rounded-2xl uppercase tracking-[0.4em] text-[11px] font-black hover:bg-black transition-all text-center flex items-center justify-center gap-4 shadow-xl active:scale-95 group"
                     >
                       <i className="fa-solid fa-calendar-circle-plus text-gold text-lg group-hover:scale-125 transition-transform"></i>
-                      Add to Registry
+                      Add to Calendar
                     </a>
                   )}
                 </div>
@@ -223,13 +269,67 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
               <div className="text-center pt-8 border-t border-gray-100 dark:border-white/5">
                 <div className="font-cursive text-2xl text-gold mb-2">Louie & Florie</div>
                 <div className="text-[10px] text-gray-400 uppercase tracking-[0.6em] font-medium leading-loose">
-                  — July 4, 2026 • New York City —
+                  — July 4, 2026 • Cebu City —
                 </div>
               </div>
             </motion.div>
           )}
         </div>
       </motion.div>
+
+      {/* Map Modal */}
+      {showMapModal && selectedVenue && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowMapModal(false)}
+          className="fixed inset-0 z-[70] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl"
+          >
+            <div className="bg-neutral-900 p-6 flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-serif text-white mb-1">{selectedVenue.name}</h3>
+                <p className="text-gray-400 text-sm">{selectedVenue.address}</p>
+              </div>
+              <button
+                onClick={() => setShowMapModal(false)}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              >
+                <i className="fa-solid fa-xmark text-xl"></i>
+              </button>
+            </div>
+            <div className="relative w-full h-[500px]">
+              <iframe
+                src={getEmbedMapUrl(selectedVenue.mapUrl)}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`Map to ${selectedVenue.name}`}
+              ></iframe>
+            </div>
+            <div className="p-4 bg-gray-50 flex justify-end">
+              <a
+                href={selectedVenue.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gold text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-gold/90 transition-all"
+              >
+                <i className="fa-solid fa-external-link mr-2"></i>
+                Open in Maps
+              </a>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 };

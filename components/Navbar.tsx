@@ -195,7 +195,7 @@ const Navbar: React.FC<NavbarProps> = ({ onAdminClick, onGuestDashboardClick, is
             onClick={onGuestDashboardClick}
             className="bg-gold text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-gold/20"
           >
-            Portal
+            Guest
           </button>
         </div>
       </div>

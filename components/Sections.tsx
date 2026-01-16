@@ -163,7 +163,7 @@ const Sections: React.FC<SectionsProps> = ({ content, isDarkMode }) => {
                     className="inline-block bg-gold text-white px-8 py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-gold/20 hover:bg-gold/90 transition-all"
                   >
                     <i className="fa-brands fa-google mr-2"></i>
-                    View Full Album
+                    View Shared Album
                   </a>
                 ) : (
                   <motion.button
@@ -173,7 +173,7 @@ const Sections: React.FC<SectionsProps> = ({ content, isDarkMode }) => {
                     title="Album is currently locked"
                   >
                     <i className="fa-solid fa-lock mr-2"></i>
-                    Album Locked
+                    Shared Album Locked
                   </motion.button>
                 )}
               </div>

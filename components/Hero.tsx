@@ -18,7 +18,8 @@ const Hero: React.FC<HeroProps> = ({ content }) => {
       if (!content.countdownDate) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
 
       const targetDate = new Date(content.countdownDate);
-      const now = new Date();
+      // Get current time in Asia/Manila timezone
+      const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
       const difference = targetDate.getTime() - now.getTime();
 
       if (difference > 0) {
