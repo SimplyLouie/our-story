@@ -23,13 +23,21 @@ const App: React.FC = () => {
   const [loginError, setLoginError] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Admin email allowlist for restricted access
-  const ADMIN_ALLOWLIST = [
-    'admin@simplylouie.com',
-    'mendezlouie892@gmail.com',
-    'louie.mendez@guesty.com',
-    'faciolflorie.mae03@gmail.com'
+  // Admin email hashes for restricted access (SHA-256)
+  const ADMIN_HASHES = [
+    'c5e76a67ab1fe296f75b85e1fe2691e1dc9981feb7d24c158ff86a20a15feddf', // admin@simplylouie.com
+    '352353cebb7a6de6f104da26fe08aa8f2679f58e53baae1718e3b6e6005fe355', // mendezlouie892@gmail.com
+    '9ba58117d08de7e366984175e8ebd4adb6d4415cf15258a6ee7a8611734977ed', // louie.mendez@guesty.com
+    '5bb6154ec85c7d3e8bee44beb152bd148381bfd88d1d3fe1b6aa82bee760f3c4'  // faciolflorie.mae03@gmail.com
   ];
+
+  // Helper to hash email for secure comparison
+  const sha256 = async (message: string) => {
+    const msgBuffer = new TextEncoder().encode(message.toLowerCase().trim());
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
 
   const [initialGuestName, setInitialGuestName] = useState<string>('');
   const [isMuted, setIsMuted] = useState(true);
@@ -206,17 +214,20 @@ const App: React.FC = () => {
 
   // Firebase Auth State Observer
   useEffect(() => {
-    const unsubscribe = authService.onAuthStateChange((user) => {
-      if (user && ADMIN_ALLOWLIST.includes(user.email || '')) {
-        setIsAdmin(true);
-        setShowAdminLogin(false);
-      } else {
-        setIsAdmin(false);
-        // If someone logs in with a non-whitelisted email, sign them out
-        if (user) {
+    const unsubscribe = authService.onAuthStateChange(async (user) => {
+      if (user) {
+        const userHash = await sha256(user.email || '');
+        if (ADMIN_HASHES.includes(userHash)) {
+          setIsAdmin(true);
+          setShowAdminLogin(false);
+        } else {
+          setIsAdmin(false);
+          // If someone logs in with a non-whitelisted email, sign them out
           authService.logout();
           setLoginError('Access denied: Email not authorized');
         }
+      } else {
+        setIsAdmin(false);
       }
     });
     return () => unsubscribe();
