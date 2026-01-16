@@ -1,0 +1,43 @@
+{
+    "rules": {
+        "content": {
+            ".read": true,
+            ".write": "auth != null",
+            ".indexOn": [
+                "lastModified"
+            ]
+        },
+        "rsvps": {
+            ".read": true,
+            ".write": true,
+            "$rsvpId": {
+                ".validate": "newData.hasChildren(['id', 'name', 'email', 'status'])"
+            },
+            ".indexOn": [
+                "status",
+                "timestamp",
+                "name"
+            ]
+        },
+        "notes": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            "$noteId": {
+                ".validate": "newData.hasChildren(['id', 'content', 'date'])"
+            },
+            ".indexOn": [
+                "date"
+            ]
+        },
+        "guestbook": {
+            ".read": true,
+            ".write": true,
+            "$entryId": {
+                ".validate": "newData.hasChildren(['id', 'name', 'message', 'date'])"
+            },
+            ".indexOn": [
+                "date"
+            ]
+        }
+    }
+}

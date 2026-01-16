@@ -1,0 +1,29 @@
+{
+    "name": "Louie & Florie Wedding",
+    "short_name": "L&F Wedding",
+    "description": "Join us for the wedding celebration of Louie & Florie on July 4, 2026",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#fcfaf7",
+    "theme_color": "#d4af37",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "lifestyle",
+        "entertainment"
+    ],
+    "screenshots": []
+}
