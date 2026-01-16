@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SiteContent, RSVP, RSVPStatus } from '../types';
 
 interface GuestDashboardProps {
@@ -17,6 +17,7 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
   const [foundRSVP, setFoundRSVP] = useState<RSVP | null>(null);
   const [showMapModal, setShowMapModal] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState<{ name: string; address: string; mapUrl: string } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialName) {
@@ -25,12 +26,18 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
   }, [initialName]);
 
   const handleSearch = (nameInput?: string) => {
+    setErrorMessage(null);
     const query = nameInput || searchTerm;
-    const rsvp = rsvps.find(r => r.name.toLowerCase().includes(query.toLowerCase().trim()));
+    if (!query.trim() && !nameInput) {
+      setErrorMessage("Please enter your name to continue.");
+      return;
+    }
+
+    const rsvp = rsvps.find(r => r.name.toLowerCase().trim() === query.toLowerCase().trim());
     if (rsvp) {
       setFoundRSVP(rsvp);
     } else if (!nameInput) {
-      alert("No RSVP found for that name. Have you responded yet?");
+      setErrorMessage("No RSVP found for that name. Have you responded yet?");
     }
   };
 
@@ -149,31 +156,60 @@ const GuestDashboard: React.FC<GuestDashboardProps> = ({ content, rsvps, initial
 
         <div className="p-6 md:p-12 overflow-y-auto custom-scrollbar flex-1">
           {!foundRSVP ? (
-            <div className="text-center py-6 md:py-10">
-              <h3 className={`text-2xl font-serif mb-4 tracking-wide ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Verify Invitation</h3>
-              <p className="text-gray-400 mb-10 text-[11px] uppercase tracking-[0.2em] leading-relaxed max-w-xs mx-auto">Please enter your full name exactly as it appears on your formal invitation.</p>
+            <div className="text-center py-6 md:py-10 max-w-sm mx-auto">
+              <div className="mb-8">
+                <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <i className="fa-solid fa-address-card text-gold text-xl"></i>
+                </div>
+                <h3 className={`text-2xl font-serif mb-3 tracking-wide ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Verify Invitation</h3>
+                <p className="text-gray-400 text-[10px] uppercase tracking-[0.2em] leading-relaxed">
+                  Enter your name to unlock your private itinerary
+                </p>
+              </div>
 
-              <div className="flex flex-col gap-8 max-w-sm mx-auto">
+              <div className="space-y-8">
                 <div className="relative group">
                   <input
                     type="text"
                     value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    placeholder="Invitation Name"
-                    className={`w-full bg-transparent border-b-2 outline-none py-4 px-2 transition-all font-serif text-2xl text-center placeholder:opacity-30 ${isDarkMode ? 'border-white/10 text-white focus:border-gold' : 'border-gray-100 text-gray-800 focus:border-gold'}`}
+                    onChange={e => {
+                      setSearchTerm(e.target.value);
+                      if (errorMessage) setErrorMessage(null);
+                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    placeholder="Search name"
+                    className={`w-full bg-transparent border-b-2 outline-none py-4 px-2 transition-all font-serif text-2xl text-center placeholder:opacity-20 ${isDarkMode ? 'border-white/10 text-white focus:border-gold' : 'border-gray-100 text-gray-800 focus:border-gold text-center'}`}
                   />
                   <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gold group-hover:w-full transition-all duration-500"></div>
                 </div>
 
+                <AnimatePresence mode="wait">
+                  {errorMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                    >
+                      <i className="fa-solid fa-circle-exclamation"></i>
+                      {errorMessage}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <button
                   onClick={() => handleSearch()}
-                  className="bg-gold text-white px-10 py-5 rounded-2xl uppercase tracking-[0.4em] text-[11px] font-black hover:bg-[#b8962d] transition-all shadow-xl shadow-gold/20 hover:scale-[1.02] active:scale-95"
+                  className="w-full bg-gold text-white py-5 rounded-2xl uppercase tracking-[0.4em] text-[11px] font-black hover:bg-[#b8962d] transition-all shadow-xl shadow-gold/20 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
                 >
-                  Confirm Identity
+                  <i className="fa-solid fa-key text-[10px]"></i>
+                  Identify Guest
                 </button>
               </div>
 
-              <p className="mt-12 text-[10px] text-gray-500 italic opacity-60">Having trouble? Please reach out to the couple directly.</p>
+              <p className="mt-12 text-[9px] text-gray-500 uppercase tracking-widest leading-loose max-w-[200px] mx-auto opacity-50 font-medium">
+                Missing from the list?<br />
+                <span className="italic">Reach out to the couple.</span>
+              </p>
             </div>
           ) : (
             <motion.div

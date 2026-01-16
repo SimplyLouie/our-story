@@ -18,7 +18,12 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
     plusOneName: '',
     followUpDate: '',
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
 
   const triggerLuxuryConfetti = () => {
     const duration = 3 * 1000;
@@ -41,6 +46,30 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
+
+    // Name validation
+    if (formData.name.trim().length < 3) {
+      newErrors.name = "Please enter your full name (minimum 3 characters).";
+    }
+
+    // Email validation (only required and validated for Undecided)
+    if (formData.status === RSVPStatus.UNDECIDED) {
+      if (!validateEmail(formData.email)) {
+        newErrors.email = "Please enter a valid email address.";
+      }
+    }
+
+    // Plus one validation
+    if (formData.plusOne && !formData.plusOneName.trim()) {
+      newErrors.plusOneName = "Please enter your guest's name.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     const newRSVP: RSVP = {
       id: Date.now().toString(),
       ...formData,
@@ -60,6 +89,7 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
       plusOneName: '',
       followUpDate: '',
     });
+    setErrors({});
     setSubmitted(false);
   };
 
@@ -91,10 +121,18 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
                   required
                   type="text"
                   value={formData.name}
-                  onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className={`w-full border-b-2 py-3 focus:border-gold outline-none transition-all text-lg font-serif bg-transparent placeholder:text-gray-500 ${isDarkMode ? 'border-gray-700 text-white' : 'border-gray-100'}`}
+                  onChange={e => {
+                    setFormData(prev => ({ ...prev, name: e.target.value }));
+                    if (errors.name) setErrors(prev => { const n = { ...prev }; delete n.name; return n; });
+                  }}
+                  className={`w-full border-b-2 py-3 focus:border-gold outline-none transition-all text-lg font-serif bg-transparent placeholder:text-gray-500 ${errors.name ? 'border-red-500/50' : (isDarkMode ? 'border-gray-700 text-white' : 'border-gray-100')}`}
                   placeholder="e.g. Florie Mae Faciol"
                 />
+                <AnimatePresence>
+                  {errors.name && (
+                    <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[9px] font-bold uppercase tracking-widest mt-2">{errors.name}</motion.p>
+                  )}
+                </AnimatePresence>
               </div>
 
               <div>
@@ -119,7 +157,7 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
               </div>
 
               {formData.status === RSVPStatus.UNDECIDED && (
-                <div className="group">
+                <div className="group ring-1 ring-gold/5 p-6 rounded-sm bg-gold/[0.02]">
                   <label className="block text-[10px] uppercase tracking-[0.3em] mb-3 font-black text-gray-400 group-focus-within:text-gold transition-colors font-body">
                     Email Address <span className="text-red-500">*</span>
                   </label>
@@ -127,11 +165,19 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
                     required
                     type="email"
                     value={formData.email}
-                    onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className={`w-full border-b-2 py-3 focus:border-gold outline-none transition-all text-lg font-serif bg-transparent placeholder:text-gray-500 ${isDarkMode ? 'border-gray-700 text-white' : 'border-gray-100'}`}
+                    onChange={e => {
+                      setFormData(prev => ({ ...prev, email: e.target.value }));
+                      if (errors.email) setErrors(prev => { const n = { ...prev }; delete n.email; return n; });
+                    }}
+                    className={`w-full border-b-2 py-3 focus:border-gold outline-none transition-all text-sm font-serif bg-transparent placeholder:text-gray-500 ${errors.email ? 'border-red-500/50' : (isDarkMode ? 'border-gray-700 text-white' : 'border-gray-100')}`}
                     placeholder="your@email.com"
                   />
-                  <p className="text-xs text-gray-400 mt-2 italic">Required for follow-up</p>
+                  <AnimatePresence>
+                    {errors.email && (
+                      <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[9px] font-bold uppercase tracking-widest mt-2">{errors.email}</motion.p>
+                    )}
+                  </AnimatePresence>
+                  <p className="text-[9px] text-gray-400 mt-3 italic uppercase tracking-wider opacity-60">Required so we can follow up with you later.</p>
                 </div>
               )}
 
@@ -167,10 +213,18 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
                         required
                         type="text"
                         value={formData.plusOneName}
-                        onChange={e => setFormData(prev => ({ ...prev, plusOneName: e.target.value }))}
-                        className={`w-full border-b-2 py-2 focus:border-gold outline-none transition-all text-base font-serif bg-transparent placeholder:text-gray-500 ${isDarkMode ? 'border-gray-700 text-white' : 'border-gray-100'}`}
+                        onChange={e => {
+                          setFormData(prev => ({ ...prev, plusOneName: e.target.value }));
+                          if (errors.plusOneName) setErrors(prev => { const n = { ...prev }; delete n.plusOneName; return n; });
+                        }}
+                        className={`w-full border-b-2 py-2 focus:border-gold outline-none transition-all text-base font-serif bg-transparent placeholder:text-gray-500 ${errors.plusOneName ? 'border-red-500/50' : (isDarkMode ? 'border-gray-700 text-white' : 'border-gray-100')}`}
                         placeholder="Companion's full name"
                       />
+                      <AnimatePresence>
+                        {errors.plusOneName && (
+                          <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-[9px] font-bold uppercase tracking-widest mt-2">{errors.plusOneName}</motion.p>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   )}
                 </motion.div>
