@@ -26,6 +26,9 @@ export interface GuestbookEntry {
   message: string;
   date: string;
   isApproved: boolean;
+  reaction?: string | null;
+  reply?: string | null;
+  replyDate?: string | null;
 }
 
 export interface LinkItem {

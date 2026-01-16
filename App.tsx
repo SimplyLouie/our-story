@@ -416,6 +416,10 @@ const App: React.FC = () => {
                   onDeleteRSVP={handleDeleteRSVP}
                   guestbookEntries={guestbookEntries}
                   onDeleteGuestbookEntry={(id) => dbService.deleteGuestbookEntry(id)}
+                  onUpdateGuestbookEntry={(entry: GuestbookEntry) => {
+                    setGuestbookEntries(prev => prev.map(e => e.id === entry.id ? entry : e));
+                    dbService.saveGuestbookEntry(entry);
+                  }}
                   onClose={handleLogout}
                   isDarkMode={isDarkMode}
                 />
