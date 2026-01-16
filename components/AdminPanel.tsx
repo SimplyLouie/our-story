@@ -699,16 +699,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
                   <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100">
                     <SectionHeader icon="fa-map-marked-alt" title="Venue Orchestration" description="Manage ceremony and reception locations." />
-
-                    <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                      <p className="text-xs text-blue-800 font-bold mb-2">
-                        <i className="fa-solid fa-info-circle mr-2"></i>
-                        Map URL - Any Format Works!
-                      </p>
-                      <p className="text-xs text-blue-700">
-                        You can paste <strong>any</strong> Google Maps link here (short links like <code className="bg-blue-100 px-1 rounded">maps.app.goo.gl</code> or full URLs). The system will automatically convert them for embedding. For best results, use the venue name from the text box above.
-                      </p>
-                    </div>
                     <SectionHeader icon="fa-gem" title="Wedding Foundation" description="Update the key details that anchor your entire website." />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                       <InputField label="Couple Names" value={content.coupleNames} onChange={(e: any) => handleContentChange('coupleNames', e.target.value)} />

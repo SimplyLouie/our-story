@@ -147,36 +147,54 @@ const Navbar: React.FC<NavbarProps> = ({ onAdminClick, onGuestDashboardClick, is
 
       {/* Mobile Floating Bottom Navigation */}
       <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md">
-        <div className={`${isDarkMode ? 'bg-[#1a1a1a]/90' : 'bg-white/90'} backdrop-blur-xl border ${isDarkMode ? 'border-white/10' : 'border-gold/20'} rounded-3xl p-2 shadow-2xl flex items-center justify-between relative`}>
-          {/* Main Nav Links Icon-style */}
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className={`${isDarkMode ? 'bg-[#1a1a1a]/95' : 'bg-white/95'} backdrop-blur-xl border ${isDarkMode ? 'border-white/10' : 'border-gold/20'} rounded-3xl p-3 shadow-2xl flex items-center justify-around relative`}
+        >
+          {/* Main Nav Links with Shadow Effect */}
           {[
             { id: 'story', icon: 'fa-book', label: 'Story' },
             { id: 'timeline', icon: 'fa-clock', label: 'Timeline' },
             { id: 'gallery', icon: 'fa-images', label: 'Gallery' },
             { id: 'rsvp', icon: 'fa-pen-nib', label: 'RSVP' },
           ].map((item) => (
-            <a
+            <motion.a
               key={item.id}
               href={`#${item.id}`}
-              className={`flex-1 flex flex-col items-center py-2 transition-all gap-1 ${activeSection === item.id ? 'text-gold' : (isDarkMode ? 'text-gray-400' : 'text-gray-500')}`}
+              whileTap={{ scale: 0.9 }}
+              className={`relative z-10 flex flex-col items-center py-3 px-4 rounded-2xl transition-all ${activeSection === item.id
+                ? 'text-gold'
+                : (isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700')
+                }`}
             >
-              <i className={`fa-solid ${item.icon} text-lg`}></i>
-              <span className="text-[8px] font-black uppercase tracking-widest">{item.label}</span>
-              {activeSection === item.id && (
-                <motion.div layoutId="active-nav-dot" className="w-1 h-1 bg-gold rounded-full absolute -bottom-1" />
-              )}
-            </a>
+              <motion.i
+                className={`fa-solid ${item.icon} text-lg mb-1`}
+                animate={activeSection === item.id ? { scale: [1, 1.2, 1] } : {}}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="text-[7px] font-black uppercase tracking-widest">{item.label}</span>
+            </motion.a>
           ))}
 
-          {/* Portal / More Button */}
-          <button
+          {/* Luxurious Menu Button */}
+          <motion.button
             onClick={toggleMobileMenu}
-            className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center transition-all shadow-lg ${isMobileMenuOpen ? 'bg-gold text-white' : (isDarkMode ? 'bg-white/5 text-gold' : 'bg-gold/10 text-gold')}`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 ${isMobileMenuOpen
+              ? 'bg-gradient-to-br from-gold via-[#d4af37] to-gold text-white shadow-xl shadow-gold/50'
+              : (isDarkMode ? 'bg-gradient-to-br from-white/10 to-white/5 text-gold shadow-lg shadow-black/20 border border-white/10' : 'bg-gradient-to-br from-gold/20 to-gold/10 text-gold shadow-lg shadow-gold/20 border border-gold/20')
+              }`}
           >
-            <i className={`fa-solid ${isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
-            <span className="text-[8px] font-black uppercase tracking-widest mt-1">Menu</span>
-          </button>
-        </div>
+            <motion.i
+              className={`fa-solid ${isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}
+              animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
+              transition={{ type: "spring", stiffness: 200 }}
+            />
+            <span className="text-[7px] font-black uppercase tracking-widest mt-1">Menu</span>
+          </motion.button>
+        </motion.div>
       </div>
 
       {/* Top Banner for Mobile (Logo & Quick Actions) */}
@@ -236,7 +254,7 @@ const Navbar: React.FC<NavbarProps> = ({ onAdminClick, onGuestDashboardClick, is
 
               <div className={`p-8 rounded-[40px] ${isDarkMode ? 'bg-white/5' : 'bg-gold/5'} text-center border ${isDarkMode ? 'border-white/5' : 'border-gold/10'}`}>
                 <h4 className="font-serif text-2xl text-gold mb-2">Our Celebration</h4>
-                <p className="text-xs text-gray-500 uppercase tracking-[0.2em] font-bold">July 4, 2026 • New York</p>
+                <p className="text-xs text-gray-500 uppercase tracking-[0.2em] font-bold">July 4, 2026 • Cebu City</p>
               </div>
             </motion.div>
           </motion.div>

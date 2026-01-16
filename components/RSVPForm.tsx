@@ -118,22 +118,22 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ onAddRSVP, isDarkMode }) => {
                 </div>
               </div>
 
-              <div className="group">
-                <label className="block text-[10px] uppercase tracking-[0.3em] mb-3 font-black text-gray-400 group-focus-within:text-gold transition-colors font-body">
-                  Email Address {formData.status === RSVPStatus.UNDECIDED && <span className="text-red-500">*</span>}
-                </label>
-                <input
-                  required={formData.status === RSVPStatus.UNDECIDED}
-                  type="email"
-                  value={formData.email}
-                  onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  className={`w-full border-b-2 py-3 focus:border-gold outline-none transition-all text-lg font-serif bg-transparent placeholder:text-gray-500 ${isDarkMode ? 'border-gray-700 text-white' : 'border-gray-100'}`}
-                  placeholder="your.email@example.com"
-                />
-                {formData.status === RSVPStatus.UNDECIDED && (
+              {formData.status === RSVPStatus.UNDECIDED && (
+                <div className="group">
+                  <label className="block text-[10px] uppercase tracking-[0.3em] mb-3 font-black text-gray-400 group-focus-within:text-gold transition-colors font-body">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    required
+                    type="email"
+                    value={formData.email}
+                    onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className={`w-full border-b-2 py-3 focus:border-gold outline-none transition-all text-lg font-serif bg-transparent placeholder:text-gray-500 ${isDarkMode ? 'border-gray-700 text-white' : 'border-gray-100'}`}
+                    placeholder="your@email.com"
+                  />
                   <p className="text-xs text-gray-400 mt-2 italic">Required for follow-up</p>
-                )}
-              </div>
+                </div>
+              )}
 
               {formData.status === RSVPStatus.ATTENDING && (
                 <motion.div
